@@ -1,0 +1,44 @@
+---
+title: "Choosing priors in Bayesian ecological models by visualization"
+author: "Jeff Wesner"
+date: "11/20/2020"
+bibliography: bib/prior_pred.bib
+bibstyle: spphys
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Introduction {#intro}
+
+The distinguishing feature between Bayesian and non-Bayesian statistics is that Bayesian statistics treats unknown parameters as random variables governed by a probability distribution (Ellison 2004; Hobbs and Hooten 2015). A common misconception is that only Bayesian statistics incorporates prior information. However, non-Bayesian methods can and often do incorporate prior information, either informally in the choices of likelihoods and model structures, or formally as penalized likelihood or hierarchical modeling (Hobbs and Hooten 2015; Morris et al. 2015).
+
+While prior information is not unique to Bayesian models, it is required of them. For example, in a simple linear regression of the form $y ~ N(\alpha + \beta x, \sigma)$ intercept $\alpha$, slope $\beta$, and error $\sigma$ are unknown parameters that need a prior probability distribution. There are differing opinions and philosophies on the best practices for choosing priors (Edwards et al. 1963; Lindley 1971; Morris et al. 2015; Gelman et al. 2017; Wolf et al. 2017; Lemoine 2019; Banner et al. 2020). In ecology, a common practice is to assign so-called non-informative priors that allow Bayesian inference to proceed (i.e. produce a posterior distribution), but with limited influence of the priors (Lemoine 2019). The reasons for this approach are varied but are at least in part driven by a desire to avoid the appearance of subjectivity and/or a reliance on default priors in popular software (Gelman and Hennig 2017; Banner et al. 2020).
+
+Regardless of the philosophy behind the approach for priors, it is important to understand what the priors actually encode in the model (Gabry et al. 2019; Kennedy et al. 2020). Even for seemingly simple and routine models, like logistic regression, it can be difficult to understand how priors affect the model, because they must be assigned in the context of likelihood (Gelman et al. 2017). The result is that prior selection takes place on parameters that are often less intuitive to understand than the outcome variable that is measured. In other words, ecologists that are interested in understanding the proportion of individuals that are infected with a virus (i.e., the outcome variable), need to assign priors on parameters that operate on the logit-scale that is several steps removed from the measure of interest. This potentially leads to unintended mistakes in which a seemingly non-informative prior at the level of the individual parameter becomes informative on the outcome scale (Northrup and Gerber 2018; Gabry et al. 2019; Banner 2020). While this type of mistake might be obvious to an experienced statistician, it is quite difficult to conceptualize for the rest of us. This is particularly true for the types of models that are commonly used in ecology, such as generalized linear mixed models or interaction models, which may have dozens of parameters, each of which require a prior probability distribution (McElreath 2020).
+
+We suggest that ecologists can address this problem using simulation from the prior predictive distribution and visualizing the implications of the priors on the outcome variable (Gabry et al. 2019). In this paper, we demonstrate how to use the prior predictive distribution to assigning priors using two case studies with ecological data.
+
+# Prior Predictive Distribution
+
+Bayesian statistics combines a likelihood function, which describes the probability of data given a parameter value, with a prior distribution, which reflects the prior probability of the parameter before seeing the data. After dividing by the marginal distribution of the data (or using numerical techniques like Markov Chain Monte Carlo), the result is a posterior probability of each model parameter, or joint posterior probability. We can use this joint posterior to make inference about specific hypotheses. The hypotheses might relate to individual model parameters, such as the probability that a slope is greater than zero in a linear regression, or to derived quantities, such as the probability that one group has a higher mean value than another group (Hobbs and Hooten 2015; Korner-Nievergelt et al. 2015).
+
+An attractive feature of the Bayesian approach is that the models are generative. This means that we can simulate potential data from the model so long as the parameters are assigned a proper probability distribution (Gelman et al. 2017). This feature is routinely used to check models after fitting the data using the posterior predictive distribution (Gelman et al. 2014), but it can also be used before seeing the data using the prior predictive distribution (Gabry et al. 2019). If we are fitting a linear regression between $y$ and \$x\$
+
+Discussion Prior predictive simulation is not new, but the ability to do it and visualize the outcome is now far easier than in the past.
+
+# Section title {#sec:1}
+
+Text with citations by \cite{Galyardt14mmm}.
+
+## Subsection title {#sec:2}
+
+as required. Don't forget to give each section and subsection a unique label (see Sect. \ref{sec:1}).
+
+#### Paragraph headings
+
+Use paragraph headings as needed.
+
+\\begin{align} a\^2+b\^2=c\^2 \\end{align}
