@@ -25,7 +25,11 @@ We suggest that ecologists can address this problem using simulation from the pr
 
 Bayesian statistics combines a likelihood function, which describes the probability of data given a parameter value, with a prior distribution, which reflects the prior probability of the parameter before seeing the data. After dividing by the marginal distribution of the data (or using numerical techniques like Markov Chain Monte Carlo), the result is a posterior probability of each model parameter, or joint posterior probability. We can use this joint posterior to make inference about specific hypotheses. The hypotheses might relate to individual model parameters, such as the probability that a slope is greater than zero in a linear regression, or to derived quantities, such as the probability that one group has a higher mean value than another group (Hobbs and Hooten 2015; Korner-Nievergelt et al. 2015).
 
-An attractive feature of the Bayesian approach is that the models are generative. This means that we can simulate potential data from the model so long as the parameters are assigned a proper probability distribution (Gelman et al. 2017). This feature is routinely used to check models after fitting the data using the posterior predictive distribution (Gelman et al. 2014), but it can also be used before seeing the data using the prior predictive distribution (Gabry et al. 2019). If we are fitting a linear regression between $y$ and \$x\$
+An attractive feature of the Bayesian approach is that the models are generative. This means that we can simulate potential data from the model so long as the parameters are assigned a proper probability distribution (Gelman et al. 2017). This feature is routinely used to check models after fitting the data using the posterior predictive distribution (Gelman et al. 2014), but it can also be used before seeing the data using the prior predictive distribution (Gabry et al. 2019):
+
+$$y_{sims_i} \sim N(\mu_{sims_i}, \sigma_{sims})$$
+
+$$mu_{sims_i} = \alpha_{sims_i} + \beta_{sims_i} x_i$$
 
 Discussion Prior predictive simulation is not new, but the ability to do it and visualize the outcome is now far easier than in the past.
 
