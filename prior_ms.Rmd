@@ -1,6 +1,6 @@
 ---
 title: "Choosing priors in Bayesian ecological models by visualization"
-author: "Jeff Wesner"
+author: "Jeff Wesner and Justin Pomeranz"
 date: "11/20/2020"
 output:
   pdf_document: default
