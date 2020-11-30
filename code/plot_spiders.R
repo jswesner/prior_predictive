@@ -6,6 +6,7 @@ library(lubridate)
 library(brms)
 library(janitor)
 library(scales)
+library(here)
 
 # load data 
 spiders <- read_csv("https://raw.githubusercontent.com/jswesner/warmbold_wesner/master/webs.csv") %>% 
@@ -123,7 +124,7 @@ spiders_priors <- plot_grid(legend, spiders_top +  guides(fill = F), spiders_bot
                             rel_heights = c(0.2, 1,1))
 spiders_priors
 
-library(here)
+
 saveRDS(spiders_priors, file = here("plots/spiders_priors.rds"))
 ggsave(spiders_priors, file = here("plots/spiders_priors.tiff"), dpi = 400, width = 6, height = 6)
 ggsave(spiders_priors, file = here("plots/spiders_priors.jpg"), dpi = 400, width = 6, height = 6)
