@@ -66,7 +66,7 @@ response_plot <- spiders_widepost %>%
   labs(y = "Value",
        title = "Example of a prior with log-link",
        x = "Level of Response") +
-  annotate("text", y = 10, x = 1, label = "Prior set for this response...") + 
+  annotate("text", y = 20, x = 1, label = "Prior set for this response...") + 
   annotate("text", y = 20, x = 2, label = "...but inference is made\non this response") +
   annotate("text", y = 20, x = 3, label = "...or this response") 
 

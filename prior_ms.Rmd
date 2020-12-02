@@ -5,6 +5,8 @@ output:
   html_document:
     df_print: paged
 csl: bib/ecology.csl
+header-includes:
+    - \usepackage{setspace}\doublespacing
 bibliography: bib/prior_pred.bib
 ---
 
@@ -40,9 +42,7 @@ We suggest that ecologists can address this problem using simulation from the pr
 
 An attractive feature of the Bayesian approach is that the models are generative. This means that we can simulate potential data from the model so long as the parameters are assigned a proper probability distribution [@gelman_bayesian_2013]. This feature is routinely used to check models after fitting the data using the posterior predictive distribution [@gelman_bayesian_2020], but it can also be used before seeing the data using the prior predictive distribution [@gabry_visualization_2019]. A simple model from a normal linear regression, using the syntax of [@mcelreath_statistical_2020], is:
 
-$$y^{sims}_i \sim N(\mu^{sims}_i, \sigma^{sims})$$
-
-$$\mu^{sims}_i = \alpha^{sims} + \beta^{sims} x_i$$ $$\alpha^{sims} \sim N(0,\sigma_{\alpha})$$ $$\beta^{sims} \sim N(0,\sigma_{\beta})$$ $$\sigma^{sims} \sim Exponential(\phi)$$where $y^{sims}$ are predicted values of the response variable, $\mu^{sims}$ are simulated values of the expected mean of the outcome, $\sigma^{sims}$ are simulated errors as standard deviations, $\sigma_{\alpha}$ and $\sigma_{\beta}$ are the standard deviations for the normal $\alpha$ and $\beta$ priors, respectively, and $\phi$ is the rate parameter for the exponential distribution. We use the exponential distribution as a prior for standard deviations because it generates only positive values and allows for occasionally large deviations. For standard deviations (or variances), there are a number of alternatives prior distributions available [@gelman_prior_2006; @gelman_bayesian_2013; @mcelreath_statistical_2020].
+$$y^{sims}_i \sim N(\mu^{sims}_i, \sigma^{sims})$$ $$\mu^{sims}_i = \alpha^{sims} + \beta^{sims} x_i$$ $$\alpha^{sims} \sim N(0,\sigma_{\alpha})$$ $$\beta^{sims} \sim N(0,\sigma_{\beta})$$ $$\sigma^{sims} \sim Exponential(\phi)$$where $y^{sims}$ are predicted values of the response variable, $\mu^{sims}$ are simulated values of the expected mean of the outcome, $\sigma^{sims}$ are simulated errors as standard deviations, $\sigma_{\alpha}$ and $\sigma_{\beta}$ are the standard deviations for the normal $\alpha$ and $\beta$ priors, respectively, and $\phi$ is the rate parameter for the exponential distribution. We use the exponential distribution as a prior for standard deviations because it generates only positive values and allows for occasionally large deviations. For standard deviations (or variances), there are a number of alternatives prior distributions available [@gelman_prior_2006; @gelman_bayesian_2013; @mcelreath_statistical_2020].
 
 Simulations are made across each $i$ value of the predictor variable(s) $x$. In this example, we assumed that $x$ was known (e.g., if it were a gradient of planned Se additions to water before the experiment was conducted or a set of fixed treatments), but it could also be simulated.
 
@@ -55,7 +55,7 @@ With this general model, we do the following:
 5)  If values do not reflect prior knowledge, change the prior distribution, likelihood, or both and repeat the simulation from step 1.
 6)  If values reflect prior knowledge, add the data and estimate the posterior distribution.
 
-This amounts to a prior predictive check to satisfy the expectation that "simulations from the full Bayesian model...should be plausible data sets" [@kennedy_experiment_2019]. The simulation and visualization steps (1-3) are critical, simulated data sets are derived from the *joint distribution* of parameters. In other words, whether a model simulates plausible data data cannot be determined simply from looking at the individual priors or model formula, because their interpretation depends on the units of measurement (e.g., a N(0,1) prior means different things if y is measure in $\mu m$ versus km) and on the range of prior expected values. We demonstrate this below with two motivating examples.
+This amounts to a prior predictive check to satisfy the expectation that "simulations from the full Bayesian model...should be plausible data sets" [@kennedy_experiment_2019]. The simulation and visualization steps (1-3) are critical, simulated data sets are derived from the *joint distribution* of parameters. In other words, whether a model simulates plausible data data cannot be determined simply from looking at the individual priors or model formula, because their interpretation depends on the units of measurement (e.g., a N(0,1) prior means different things if y is measure in $\mu m$ versus km) and on the range of prior expected values. We demonstrate this below with two motivating examples. All data and code are available at: https://github.com/jswesner/prior_predictive.
 
 **Motivating Examples**
 
@@ -103,8 +103,8 @@ This data set comes from [@warmbold_predator_2018], who studied how terrestrial 
 
 We fit a generalized linear mixed model with a Poisson likelihood, since the response $y$ is a non-negative integer (i.e. number of spiders counted above a cage on each date). The predictor variables were date, treatment, and a date x treatment interaction. Since each replicate cage was sampled four times, we included a random intercept for cages. Describing the model as having two main effects and an interaction is deceptively simple. In reality, the model has 13 parameters that that require a prior specification: 12 "fixed" effects that indicate all combinations of each date x treatment, plus a "random" effect on the intercept:
 
-$$ y_i \sim Poisson(\lambda_i) $$ $$ \text{log } \lambda_i = \alpha + \alpha_{[cage]} + \beta_1x_{trt_i = fishless} + \beta_2x_{trt_i = green} + \beta_3x_{date_i = 2} + \beta_4x_{date_i = 3} + \\beta_5x_{date4}
-+ \beta_6x_{trt_i = fishless:date_i = 2} + \beta_7x_{trt_i = green:date_i = 2} + \\beta_8x_{trt_i = fishless:date_i = 3} + \beta_9x_{trt_i = green: date_i = 3} + \\beta_{10}x_{trt_i = fishless:date_i = 4} + \beta_{11}x_{trt_i = green:date_i = 4} $$ $$ \alpha \sim Normal(0, \sigma_{\alpha}) $$ $$ \alpha_{[cage]} \sim N(0, \sigma_{cage}) $$ $$ \beta_{1...11} \sim Normal(0, \sigma_{\beta_{1...11}}) $$ $$ \sigma_{cage} \sim Exponential(\phi) $$
+$$ y_i \sim Poisson(\lambda_i) $$ $$ \text{log } \lambda_i = \alpha + \alpha_{[cage]} +$$
+$$\beta_1x_{trt_i = fishless} + \beta_2x_{trt_i = green} + \beta_3x_{date_i = 2} + \beta_4x_{date_i = 3} +$$ $$\beta_5x_{date4}+ \beta_6x_{trt_i = fishless:date_i = 2} + \beta_7x_{trt_i = green:date_i = 2}$$ + $$\beta_8x_{trt_i = fishless:date_i = 3} + \beta_9x_{trt_i = green: date_i = 3} + \\beta_{10}x_{trt_i = fishless:date_i = 4}$$ + $$\beta_{11}x_{trt_i = green:date_i = 4} $$ $$ \alpha \sim Normal(0, \sigma_{\alpha}) $$ $$ \alpha_{[cage]} \sim N(0, \sigma_{cage}) $$ $$ \beta_{1...11} \sim Normal(0, \sigma_{\beta_{1...11}}) $$ $$ \sigma_{cage} \sim Exponential(\phi) $$
 
 where each $y_i$ is described by a Poisson distribution with mean $\lambda_i$. Because the likelihood is not Gaussian, we specify a log link $\text{log } \lambda_i$ so that the mean can be estimated as a linear function of predictors. This also ensures that the mean will be a positive number, so that we do not fit a model that predicts negative spider abundance. In this model, the intercept $\alpha$ represents the predicted log mean number of spiders in the treatment with Smallmouth Buffalo on the first sample date. The choice of reference treatment is arbitrary. Choosing Smallmouth Buffalo and the first date as the intercept is the default choice in R [@r_core_team_r_2020] simply because the treatment is coded first alphabetically ("buffalo") and first numerically ("2015-06-08").
 
