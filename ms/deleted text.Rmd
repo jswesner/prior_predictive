@@ -1,0 +1,8 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Deleted Text
+
+Bayesian statistics combines a likelihood $p(y|\theta)$, which describes the probability of data given a parameter value, with a prior distribution $p(\theta)$, which reflects the prior probability of the parameter before seeing the data. Multiplying these and then dividing by the marginal distribution of the data $\int p(y|\theta)p(\theta)d\theta$ (or using numerical techniques like Markov Chain Monte Carlo), gives a posterior probability of model parameters $p(\theta|y)$, or joint posterior probability [@hobbs_bayesian_2015]. We can use this joint posterior to make inference about specific hypotheses. The hypotheses might relate to individual model parameters, such as the probability that a slope is greater than zero in a linear regression, or to derived quantities, such as the probability that one group has a higher mean value than another group [@hobbs_bayesian_2015; @korner-nievergelt_bayesian_2015].

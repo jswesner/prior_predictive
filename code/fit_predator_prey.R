@@ -52,24 +52,34 @@ post_pred_prey <- post_preds %>%
   guides(colour = guide_legend(override.aes = list(alpha = 1))) +
   theme(legend.title = element_blank()) +
   labs(y = "Mass of prey (log grams)",
-       x = "Mass of predator (log grams)") 
+       x = "Mass of predator (log grams)") +
+  geom_vline(xintercept = -6.18, linetype = "dashed") +
+  annotate("text", x = -6.1, y = -40, label = "Average-sized predator", size = 2.5) + 
+  NULL
 
+
+nsim = 10
 postconditional_pred_prey <- post_preds %>% 
-  filter(response == "logpreymasssims" & sim <= 100) %>% 
-  group_by(prior_post) %>% 
+  filter(response == "logpreymasssims") %>% 
+  group_by(sim, prior_post) %>% 
   filter(log_pred_mass == median(log_pred_mass)) %>% 
-  ggplot(aes(x = value, y = ..scaled..)) + 
-  geom_line(aes(group = interaction(prior_post, sim), alpha = prior_post, color = prior_post), stat="density") +
+  ungroup() %>% 
+  filter(sim <= nsim) %>%
+  ggplot(aes(x = sim, y = value)) + 
+  # geom_point(data = fake_data_medians %>% filter(model == "c") %>% filter(sim <= nsim),size = 4) +
+  geom_boxplot(aes(group = interaction(sim, prior_post), color = prior_post), outlier.shape = NA) +
+  geom_point(size = 0.4, position = position_jitterdodge(dodge.width = 0.7, jitter.width = 0.1), 
+             aes(shape = prior_post, color = prior_post)) +
+  # facet_grid(.~model, scales = "free_y") +
   theme_classic() +
-  guides(colour = guide_legend(override.aes = list(alpha = 1))) +
-  theme(legend.title = element_blank()) +
   scale_color_colorblind() +
-  scale_alpha_manual(values = c(0.1, 1)) +
-  labs(x = "Predicted mass of prey (log grams) for an average sized predator") +
-  theme(axis.line.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        axis.title.y = element_blank(),
-        axis.text.y = element_blank())
+  # guides(color = F) +
+  labs(y = "Log prey mass (g)\nfor an average-sized predator", 
+       x = "Simulation",
+       title = "") +
+  # coord_cartesian(ylim = c(-20, 10)) +
+  scale_x_continuous(breaks = c(0:10)) +
+  theme(legend.title = element_blank())
 
 plot_fit_predprey <- plot_grid(post_pred_prey, postconditional_pred_prey, ncol = 1, align = "v",
                                labels = "auto")
@@ -77,6 +87,9 @@ plot_fit_predprey <- plot_grid(post_pred_prey, postconditional_pred_prey, ncol =
 saveRDS(plot_fit_predprey, file = here("plots/post_pred_prey.rds"))
 ggsave(plot_fit_predprey, file = here("plots/post_pred_prey.tiff"), dpi = 400, width = 6, height = 6) 
 ggsave(plot_fit_predprey, file = here("plots/post_pred_prey.jpg"), dpi = 400, width = 6, height = 6)
+
+
+
 
 
 

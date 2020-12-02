@@ -23,24 +23,57 @@ get_prior(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link =
 # Fit Models --------------------------------------------------------------
 
 # Sample prior only 
-spiders_wide <- brm(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link = "log"),
-                   prior = c(prior(normal(0, 10), class = "b"),
-                              prior(normal(0, 10), class = "Intercept"),
-                              prior(exponential(0.1), class = "sd")),
-                   chains = 1, iter = 1000, sample_prior = "only")  
-  
-spiders_narrow <- brm(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link = "log"),
-                    prior = c(prior(normal(0, 1), class = "b"),
-                              prior(normal(0, 1), class = "Intercept"),
-                              prior(exponential(1), class = "sd")),
-                    chains = 1, iter = 1000, sample_prior = "only") 
+# spiders_wide <- brm(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link = "log"),
+#                    prior = c(prior(normal(0, 10), class = "b"),
+#                               prior(normal(0, 10), class = "Intercept"),
+#                               prior(exponential(0.1), class = "sd")),
+#                    chains = 1, iter = 1000, sample_prior = "only")  
+#   
+# spiders_narrow <- brm(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link = "log"),
+#                     prior = c(prior(normal(0, 1), class = "b"),
+#                               prior(normal(0, 1), class = "Intercept"),
+#                               prior(exponential(1), class = "sd")),
+#                     chains = 1, iter = 1000, sample_prior = "only") 
+# 
+# spiders_narrowest <- brm(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link = "log"),
+#                     prior = c(prior(normal(0, 0.1), class = "b"),
+#                               prior(normal(0, 0.1), class = "Intercept"),
+#                               prior(exponential(2), class = "sd")),
+#                     chains = 1, iter = 1000, sample_prior = "only") 
+# 
+# saveRDS(spiders_wide, file = here("models/spiders_wide.rds"))
+# saveRDS(spiders_narrow, file = here("models/spiders_narrow.rds"))
+# saveRDS(spiders_narrowest, file = here("models/spiders_narrowest.rds"))
 
-spiders_narrowest <- brm(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link = "log"),
-                    prior = c(prior(normal(0, 0.1), class = "b"),
-                              prior(normal(0, 0.1), class = "Intercept"),
-                              prior(exponential(2), class = "sd")),
-                    chains = 1, iter = 1000, sample_prior = "only") 
+spiders_wide <- readRDS(here("models/spiders_wide.rds"))
+spiders_narrow <- readRDS(here("models/spiders_narrow.rds"))
+spiders_narrowest <- readRDS(here("models/spiders_narrowest.rds"))
 
+
+# extract and plot transformed and untransformed posterior
+spiders_widepost <- posterior_samples(spiders_narrow) %>% as_tibble() %>% clean_names() %>% 
+  select(b_intercept) %>% mutate(exp_int = exp(b_intercept),
+                                 pois_exp = rpois(nrow(.), exp_int)) %>% pivot_longer(cols = everything()) 
+
+
+response_plot <- spiders_widepost %>% 
+  mutate(name = case_when(name == "b_intercept" ~ "log \u03BB_i\n(log mean # of spiders)",
+                          name == "pois_exp" ~ "Poisson(\u03BB_i)\n(predicted total # of spiders)", TRUE ~ "\u03BB_i\n(mean # of spiders)")) %>% 
+  mutate(name = fct_relevel(name, "log \u03BB_i\n(log mean # of spiders)")) %>% 
+  ggplot(aes(x = name, y = value)) +
+  geom_point(position = position_jitter(width = 0.05), size = 0.8, shape = 21) +
+  theme_bw() +
+  labs(y = "Value",
+       title = "Example of a prior with log-link",
+       x = "Level of Response") +
+  annotate("text", y = 10, x = 1, label = "Prior set for this response...") + 
+  annotate("text", y = 20, x = 2, label = "...but inference is made\non this response") +
+  annotate("text", y = 20, x = 3, label = "...or this response") 
+
+
+saveRDS(response_plot, here("plots/response_plot.rds"))
+ggsave(response_plot, file = here("plots/response_plot.tiff"), dpi = 500, width = 6, height = 5)
+ggsave(response_plot, file = here("plots/response_plot.jpg"), dpi = 500, width = 6, height = 5)
 
 preds_wide <- fitted(spiders_wide, summary = F, scale = "response") %>% t() %>% as_tibble() %>% 
   mutate(trt = spiders$trt,
@@ -132,11 +165,15 @@ ggsave(spiders_priors, file = here("plots/spiders_priors.jpg"), dpi = 400, width
 
 # Fit Models - Posterior --------------------------------------------------
 
-spiders_narrow_post <- brm(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link = "log"),
-                      prior = c(prior(normal(0, 1), class = "b"),
-                                prior(normal(0, 1), class = "Intercept"),
-                                prior(exponential(1), class = "sd")),
-                      chains = 1, iter = 1000) 
+# spiders_narrow_post <- brm(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link = "log"),
+#                       prior = c(prior(normal(0, 1), class = "b"),
+#                                 prior(normal(0, 1), class = "Intercept"),
+#                                 prior(exponential(1), class = "sd")),
+#                       chains = 1, iter = 1000) 
+
+# saveRDS(spiders_narrow_post, file = "models/spiders_narrow_post.rds")
+
+spiders_narrow_post <- readRDS(here("models/spiders_narrow_post.rds"))
 
 spider_post <- fitted(spiders_narrow_post, summary = F, scale = "response") %>% t() %>% as_tibble() %>% 
   mutate(trt= spiders$trt,
