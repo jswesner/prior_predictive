@@ -27,20 +27,20 @@ get_prior(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link =
 #                    prior = c(prior(normal(0, 10), class = "b"),
 #                               prior(normal(0, 10), class = "Intercept"),
 #                               prior(exponential(0.1), class = "sd")),
-#                    chains = 1, iter = 1000, sample_prior = "only")  
-#   
+#                    chains = 1, iter = 1000, sample_prior = "only")
+# 
 # spiders_narrow <- brm(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link = "log"),
 #                     prior = c(prior(normal(0, 1), class = "b"),
 #                               prior(normal(0, 1), class = "Intercept"),
 #                               prior(exponential(1), class = "sd")),
-#                     chains = 1, iter = 1000, sample_prior = "only") 
+#                     chains = 1, iter = 1000, sample_prior = "only")
 # 
 # spiders_narrowest <- brm(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link = "log"),
 #                     prior = c(prior(normal(0, 0.1), class = "b"),
 #                               prior(normal(0, 0.1), class = "Intercept"),
 #                               prior(exponential(2), class = "sd")),
-#                     chains = 1, iter = 1000, sample_prior = "only") 
-# 
+#                     chains = 1, iter = 1000, sample_prior = "only")
+
 # saveRDS(spiders_wide, file = here("models/spiders_wide.rds"))
 # saveRDS(spiders_narrow, file = here("models/spiders_narrow.rds"))
 # saveRDS(spiders_narrowest, file = here("models/spiders_narrowest.rds"))
@@ -113,19 +113,55 @@ preds_all <- bind_rows(preds_wide, preds_narrow, preds_narrowest) %>%
   rename(Treatment = trt)
 
 
-spiders_top <- preds_all %>% 
+spiders_top_a <- preds_all %>% filter(facet == "a") %>% 
   ggplot(aes(x = date, y = value, fill = Treatment, group = interaction(Treatment, date))) +
   geom_violin(position = position_dodge(width = 5)) +
   scale_y_log10(labels = c("0.001","0.01", "1","10", "100", "1000", "100,000", "100,000,000"), 
                 breaks = c(0.001, 0.01, 1, 10, 100, 1000, 100000, 100000000)) +
   scale_fill_colorblind() +
-  facet_grid(.~facet) +
+  # facet_grid(.~facet) +
   coord_cartesian(ylim = c(0.001, 100000000)) + 
   theme_classic() +
   labs(y = "Mean Number of Spiders",
        x = "Date",
-       title = "Simulated Mean Spider Abundance")
+       title = expression(paste("Simulated Mean Spiders (",lambda["i"], " = ", alpha + beta[1]*x["ijt"],"...))")),
+       subtitle = expression(paste("Weak priors: ", alpha%~%N(0, 10),", ", ~ beta[1-11]%~%N(0, 10),", ", ~ sigma["x"]%~%exp(0.1)))) +
+  theme(legend.position = "top")
   
+
+spiders_top_b <- preds_all %>% filter(facet == "b") %>% 
+  ggplot(aes(x = date, y = value, fill = Treatment, group = interaction(Treatment, date))) +
+  geom_violin(position = position_dodge(width = 5)) +
+  scale_y_log10(labels = c("0.001","0.01", "1","10", "100", "1000", "100,000", "100,000,000"), 
+                breaks = c(0.001, 0.01, 1, 10, 100, 1000, 100000, 100000000)) +
+  scale_fill_colorblind() +
+  # facet_grid(.~facet) +
+  coord_cartesian(ylim = c(0.001, 100000000)) + 
+  theme_classic() +
+  labs(y = "Mean Number of Spiders",
+       x = "Date",
+       title = "",
+       subtitle = expression(paste("Stronger priors: ", alpha%~%N(0, 1),", ", ~ beta[1-11]%~%N(0, 1),", ", ~ sigma["x"]%~%exp(1)))) +
+  theme(legend.position = "top")
+
+
+spiders_top_c <- preds_all %>% filter(facet == "c") %>% 
+  ggplot(aes(x = date, y = value, fill = Treatment, group = interaction(Treatment, date))) +
+  geom_violin(position = position_dodge(width = 5)) +
+  scale_y_log10(labels = c("0.001","0.01", "1","10", "100", "1000", "100,000", "100,000,000"), 
+                breaks = c(0.001, 0.01, 1, 10, 100, 1000, 100000, 100000000)) +
+  scale_fill_colorblind() +
+  # facet_grid(.~facet) +
+  coord_cartesian(ylim = c(0.001, 100000000)) + 
+  theme_classic() +
+  labs(y = "Mean Number of Spiders",
+       x = "Date",
+       title = "",
+       subtitle = expression(paste("Strongest priors: ", alpha%~%N(0, 0.1),", ", ~ beta[1-11]%~%N(0, 0.1),", ", ~ sigma["x"]%~%exp(2)))) +
+  theme(legend.position = "top")
+
+
+
 
 # Simulate number of spiders in a new cage --------------------------------
 
@@ -142,34 +178,100 @@ predsint_all = bind_rows(predsint_wide, predsint_narrow, predsint_narrowest) %>%
                          name == "V2" ~ "fishless",
                          TRUE ~ "green"))
 
-spiders_bottom <- predsint_all %>% 
+spiders_bottom_a <- predsint_all %>% filter(facet == "c") %>% 
   ggplot(aes(x = trt, y = value)) + 
   geom_point(position = position_jitter(width = 0.1), shape = 21) +
   scale_y_log10(labels = c("1", "10", "100", "1,000", "100,000", "100,000,000"), breaks = c(1, 10, 100, 1000, 100000, 100000000)) +
-  facet_grid(.~facet, scales = "free_y") +
+  # facet_grid(.~facet, scales = "free_y") +
   theme_classic() +
   labs(y = "Number of Spiders", 
        x = "Treatment",
-       title = "Simulated Number of Spiders")
+       title = expression(paste("Simulated Data (",y["i"]^{"new"}, " ~ Poisson(", lambda["i"],"))")))
   
-legend = get_legend(spiders_top + theme(legend.position = "top"))
-spiders_priors <- plot_grid(legend, spiders_top +  guides(fill = F), spiders_bottom, ncol = 1, align = "h",
-                            rel_heights = c(0.2, 1,1))
+spiders_bottom_b <- predsint_all %>% filter(facet == "d") %>% 
+  ggplot(aes(x = trt, y = value)) + 
+  geom_point(position = position_jitter(width = 0.1), shape = 21) +
+  scale_y_log10(labels = c("1", "10", "100", "1,000", "100,000", "100,000,000"), breaks = c(1, 10, 100, 1000, 100000, 100000000)) +
+  # facet_grid(.~facet, scales = "free_y") +
+  theme_classic() +
+  labs(y = "Number of Spiders", 
+       x = "Treatment",
+       title = "")
+
+spiders_bottom_c <- predsint_all %>% filter(facet == "e") %>%  
+  ggplot(aes(x = trt, y = value)) + 
+  geom_point(position = position_jitter(width = 0.1), shape = 21) +
+  scale_y_log10(labels = c("1", "10", "100", "1,000", "100,000", "100,000,000"), breaks = c(1, 10, 100, 1000, 100000, 100000000)) +
+  # facet_grid(.~facet, scales = "free_y") +
+  theme_classic() +
+  labs(y = "Number of Spiders", 
+       x = "Treatment",
+       title = "")
+
+legend = get_legend(spiders_top_a + theme(legend.position = "top"))
+
+spiders_priors <- plot_grid(spiders_top_a,
+                            spiders_top_b,
+                            spiders_top_c,
+                            spiders_bottom_a,
+                            spiders_bottom_b,
+                            spiders_bottom_c, ncol = 3, align = "v")
 spiders_priors
 
 
 saveRDS(spiders_priors, file = here("plots/spiders_priors.rds"))
-ggsave(spiders_priors, file = here("plots/spiders_priors.tiff"), dpi = 400, width = 6, height = 6)
-ggsave(spiders_priors, file = here("plots/spiders_priors.jpg"), dpi = 400, width = 6, height = 6)
+ggsave(spiders_priors, file = here("plots/spiders_priors.tiff"), dpi = 400, width = 16, height = 11)
+ggsave(spiders_priors, file = here("plots/spiders_priors.jpg"), dpi = 400, width = 16, height = 11)
 
 
 # Fit Models - Posterior --------------------------------------------------
 
-# spiders_narrow_post <- brm(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link = "log"),
-#                       prior = c(prior(normal(0, 1), class = "b"),
-#                                 prior(normal(0, 1), class = "Intercept"),
-#                                 prior(exponential(1), class = "sd")),
-#                       chains = 1, iter = 1000) 
+spiders_wide_post <- brm(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link = "log"),
+                      prior = c(prior(normal(0, 10), class = "b"),
+                                prior(normal(0, 10), class = "Intercept"),
+                                prior(exponential(0.1), class = "sd")),
+                      chains = 1, iter = 1000)
+
+spiders_narrow_post <- brm(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link = "log"),
+                      prior = c(prior(normal(0, 1), class = "b"),
+                                prior(normal(0, 1), class = "Intercept"),
+                                prior(exponential(1), class = "sd")),
+                      chains = 1, iter = 1000)
+
+spiders_narrowest_post <- brm(webs ~ trt*datefac + (1|cage), data = spiders, family = poisson(link = "log"),
+                           prior = c(prior(normal(0, 0.1), class = "b"),
+                                     prior(normal(0, 0.1), class = "Intercept"),
+                                     prior(exponential(2), class = "sd")),
+                           chains = 1, iter = 1000)
+
+test <- conditional_effects(spiders_wide_post)
+test2 <- conditional_effects(spiders_narrow_post)
+test3 <- conditional_effects(spiders_narrowest_post)
+
+wide_cond <- test$`trt:datefac` %>% as_tibble() %>% clean_names() %>% mutate(Priors = "weak")
+narrow_cond <- test2$`trt:datefac` %>% as_tibble() %>% clean_names() %>% mutate(Priors = "stronger")
+narrowest_cond <- test3$`trt:datefac` %>% as_tibble() %>% clean_names() %>% mutate(Priors = "strongest")
+
+both_cond <- bind_rows(wide_cond, narrow_cond, narrowest_cond)
+
+
+spider_supplementary <- both_cond %>% 
+  mutate(webs = estimate) %>% 
+  mutate(Priors = fct_relevel(Priors, "weak")) %>% 
+  ggplot(aes(x = reorder(interaction(datefac,trt), webs), y = webs)) + 
+  geom_pointrange(aes(ymin = lower, ymax = upper, color = Priors), position = position_dodge(width = 0.3)) +
+  geom_point(data = spiders, aes( y = webs), alpha = 0.3, 
+             position = position_jitter(height = 0.1, width = 0)) +
+  theme_classic() +
+  labs(x = "Date x Treatment ranked by # webs",
+       y = "Number of spiders webs") +
+  scale_color_colorblind() +
+  coord_flip()
+
+saveRDS(spider_supplementary, file = here("plots/spider_supplementary.rds"))  
+ggsave(spider_supplementary, file = here("plots/spider_supplementary.tiff"), dpi = 500, width = 6, height = 6)
+ggsave(spider_supplementary, file = here("plots/spider_supplementary.jpg"), dpi = 500, width = 6, height = 6)
+
 
 # saveRDS(spiders_narrow_post, file = "models/spiders_narrow_post.rds")
 
@@ -247,9 +349,3 @@ spider_post_plot <- plot_grid(spider_post_top, spider_post_bottom,
 saveRDS(spider_post_plot, file = here("plots/spider_post_plot.rds"))
 ggsave(spider_post_plot, file = here("plots/spider_post_plot.tiff"), dpi = 400, width = 6, height = 6)
 ggsave(spider_post_plot, file = here("plots/spider_post_plot.jpg"), dpi = 400, width = 6, height = 6)
-
-
-spider_post %>% 
-  group_by(trt, date) %>% 
-  summarize(mean = mean(value))
-                         
