@@ -7,6 +7,7 @@ library(brms)
 library(readr)
 library(ggrepel)
 library(janitor)
+library(viridis)
 
 # read data from Brose et al. 2006
 d <- read.csv(here("data/pred-prey-mass.csv"))
@@ -81,17 +82,19 @@ sim_reglines_a <- fake_data %>%
   slice(seq(1, n(), by = 25)) %>%
   ggplot(aes(x = log_pred_mass, y = value)) + 
   geom_line(size = 0.2, aes(group = sim), alpha = 0.4) +
-  geom_abline(data = reference_points, aes(slope = 0, intercept = y)) +
+  geom_abline(data = reference_points, aes(slope = 0, intercept = y, color = reference)) +
   geom_text_repel(data = reference_points %>% filter(model == "a"),
                   aes(x = max(d$log_pred) + 2,
-                      y = y, label = reference),
+                      y = y, 
+                      label = reference,
+                      color = reference),
                   hjust = 1, 
                   size = 5, 
                   nudge_x = 2,
                   nudge_y = 15,
                   direction = "y") +
   guides(color = F) +
-  scale_color_colorblind() +
+  scale_color_brewer(type = "qual", palette = 2) +
   theme_classic() +
   # scale_x_continuous(limits = c(-7.8, -6.1)) +
   labs(y = "Prey Mass log(g)",
@@ -107,6 +110,7 @@ sim_reglines_a <- fake_data %>%
   NULL
 
 
+
 sim_reglines_b <- fake_data %>% 
   filter(response == "musims" & model == "b") %>%
   group_by(sim) %>% 
@@ -114,17 +118,18 @@ sim_reglines_b <- fake_data %>%
   mutate(mean = mean(value)) %>% 
   ggplot(aes(x = log_pred_mass, y = value)) + 
   geom_line(size = 0.2, aes(group = sim), alpha = 0.4) +
-  geom_abline(data = reference_points, aes(slope = 0, intercept = y)) +
+  geom_abline(data = reference_points, aes(slope = 0, intercept = y, color = reference)) +
   geom_text_repel(data = reference_points %>% filter(model == "a"),
                   aes(x = max(d$log_pred) + 2,
-                      y = y, label = reference),
+                      y = y, label = reference,
+                      color = reference),
                   hjust = -1, 
                   size = 5, 
                   nudge_x = 2,
                   nudge_y = 15,
                   direction = "y") +
   guides(color = F) +
-  scale_color_colorblind() +
+  scale_color_brewer(type = "qual", palette = 2) +
   theme_classic() +
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
   labs(y = "Prey Mass log(g)",
@@ -154,16 +159,18 @@ sim_reglines_c <- fake_data %>%
   mutate(mean = mean(value)) %>% 
   ggplot(aes(x = log_pred_mass)) + 
   geom_line(size = 0.2, aes(group = sim, y = value), alpha = 0.8) +
-  geom_abline(data = reference_points, aes(slope = 0, intercept = y)) +
+  geom_abline(data = reference_points, aes(slope = 0, intercept = y,
+                                           color = reference)) +
   geom_text(data = reference_points %>% filter(model == "c"),
           aes(x = max(d$log_pred) + 2,
-              y = y, label = reference),
+              y = y, label = reference,
+              color = reference),
           hjust = 0, 
           size = 5, 
           nudge_x = -0.2,
           nudge_y = 5) +
   guides(color = F) +
-  scale_color_colorblind() +
+  scale_color_brewer(type = "qual", palette = 2) +
   theme_classic() +
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
   labs(y = "Prey Mass log(g)",
@@ -190,17 +197,18 @@ sim_data_a <- fake_data %>%
          sim = paste0("Simulation ", sim)) %>% 
   ggplot(aes(x = log_pred_mass, y = value)) + 
   geom_point(size = 0.1, alpha = 0.2) +
-  geom_abline(data = reference_points, aes(slope = 0, intercept = y)) +
+  geom_abline(data = reference_points, aes(slope = 0, intercept = y, color = reference)) +
   geom_text_repel(data = reference_points %>% filter(model == "a"),
             aes(x = max(d$log_pred) + 2,
-                y = y, label = reference),
+                y = y, label = reference,
+                color = reference),
             hjust = 1, 
             size = 5, 
             nudge_x = 2,
             nudge_y = 15,
             direction = "y") +
   guides(color = F) +
-  scale_color_colorblind() +
+  scale_color_brewer(type = "qual", palette = 2) +
   theme_classic() +
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
   labs(y = "Prey Mass log(g)",
@@ -221,17 +229,18 @@ sim_data_b <- fake_data %>%
          sim = paste0("Simulation ", sim)) %>% 
   ggplot(aes(x = log_pred_mass, y = value)) + 
   geom_point(size = 0.1, alpha = 0.2) +
-  geom_abline(data = reference_points, aes(slope = 0, intercept = y)) +
+  geom_abline(data = reference_points, aes(slope = 0, intercept = y, color = reference)) +
   geom_text_repel(data = reference_points %>% filter(model == "a"),
                   aes(x = max(d$log_pred) + 2,
-                      y = y, label = reference),
+                      y = y, label = reference,
+                      color = reference),
                   hjust = -1, 
                   size = 5, 
                   nudge_x = 2,
                   nudge_y = 15,
                   direction = "y") +
   guides(color = F) +
-  scale_color_colorblind() +
+  scale_color_brewer(type = "qual", palette = 2) +
   theme_classic() +
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
   labs(y = "Prey Mass log(g)",
@@ -253,16 +262,17 @@ sim_data_c <- fake_data %>%
          sim = paste0("Simulation ", sim)) %>% 
   ggplot(aes(x = log_pred_mass, y = value)) + 
   geom_point(size = 0.1, alpha = 0.2) +
-  geom_abline(data = reference_points, aes(slope = 0, intercept = y)) +
+  geom_abline(data = reference_points, aes(slope = 0, intercept = y, color = reference)) +
   geom_text(data = reference_points %>% filter(model == "c"),
             aes(x = max(d$log_pred) + 2,
-                y = y, label = reference),
+                y = y, label = reference,
+                color = reference),
             hjust = 0, 
             size = 5, 
             nudge_x = -0.2,
             nudge_y = 5) +
   guides(color = F) +
-  scale_color_colorblind() +
+  scale_color_brewer(type = "qual", palette = 2) +
   theme_classic() +
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
   labs(y = "Prey Mass log(g)",

@@ -42,6 +42,9 @@ saveRDS(spiders_wide, file = here("models/spiders_wide.rds"))
 saveRDS(spiders_narrow, file = here("models/spiders_narrow.rds"))
 saveRDS(spiders_narrowest, file = here("models/spiders_narrowest.rds"))
 
+spiders_wide <- readRDS(here("models/spiders_wide.rds"))
+spiders_narrow <- readRDS(here("models/spiders_narrow.rds"))
+spiders_narrowest <- readRDS(here("models/spiders_narrowest.rds"))
 
 # Fit the model to data ---------------------------------------------------
 
@@ -121,11 +124,12 @@ spiders_top_a <- preds_all %>% filter(facet == "a") %>%
   theme_classic() +
   labs(y = "Mean Number of Spiders",
        x = "Date",
-       title = expression(paste("Simulated Mean (",lambda["i"], " = ", alpha + beta[1]*x["ijt"],"...))")),
+       title = expression(paste("Simulated Mean: ",lambda["i"], " = ", alpha + beta[1]*x["ijt"],"...")),
        subtitle = "Weak Priors") +
   theme(legend.position = "top",
         text = element_text(size = 16),
-        legend.title = element_blank()) 
+        legend.title = element_blank(),
+        plot.title = element_text(size = 15)) 
   
 
 spiders_top_b <- preds_all %>% filter(facet == "b") %>% 
@@ -144,7 +148,7 @@ spiders_top_b <- preds_all %>% filter(facet == "b") %>%
   theme(legend.position = "top",
         text = element_text(size = 16),
         legend.title = element_blank()) +
-  geom_violin(data = spider_post, fill = "#E69F00",position = position_dodge(width = 5)) # add posterior
+  geom_violin(data = spider_post %>% mutate(date = as.Date(date)), fill = "#E69F00",position = position_dodge(width = 5)) # add posterior
 
 
 spiders_top_c <- preds_all %>% filter(facet == "c") %>% 
@@ -170,7 +174,7 @@ spiders_top_c <- preds_all %>% filter(facet == "c") %>%
 # Simulate number of spiders in a new cage --------------------------------
 
 # data to simulate across
-newdata <- data.frame(datefac = as.factor(max(spiders$date)),
+newdata <- data.frame(datefac = as.factor(max(as.Date(spiders$date))),
                       trt = unique(spiders$trt),
                       cage = "new")
 
@@ -206,10 +210,10 @@ spiders_bottom_a <- predsint_all %>% filter(facet == "c") %>%
   theme_classic() +
   labs(y = "Number of Spiders", 
        x = "Treatment",
-       title = expression(paste("Simulated Data (",y["i"]^{"new"}, " ~ Poisson(", lambda["i"],"))")),
+       title = expression(paste("Simulated Data: ",y["i"]^{"new"}, " ~ Poisson(", lambda["i"],")")),
        subtitle = "Weak Priors") +
   theme(text = element_text(size = 16),
-        plot.title = element_text(size = 13.5))
+        plot.title = element_text(size = 15))
   
 
 spiders_bottom_b <- predsint_all %>% filter(facet == "d") %>% 
