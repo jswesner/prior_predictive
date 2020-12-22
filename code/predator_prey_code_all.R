@@ -12,10 +12,6 @@ library(viridis)
 # read data from Brose et al. 2006
 d <- read.csv(here("data/pred-prey-mass.csv"))
 
-# make log prey and predator
-d$log_pred <- log(d$pred)
-d$log_prey <- log(d$prey)
-
 # Simulate outcomes from different prior predictive distributions (a/b/sig1, a2/b2/sig2, etc)
 set.seed(1095)
 N <- 100 # number of simulations
@@ -64,7 +60,7 @@ strongest_brm_d <- brm(log_prey ~ log_pred, data = d,
                                  prior(exponential(.5), class = "sigma")))
 
 saveRDS(strongest_brm_d, file = here("models/strongest_brm_d.rds"))
-
+strongest_brm_d <- readRDS(file = here("models/strongest_brm_d.rds"))
 # Extract posterior samples
 posts_strongest <- posterior_samples(strongest_brm_d) %>% as_tibble() %>% clean_names() %>% mutate(priors = "strongest")
 
@@ -94,7 +90,7 @@ sim_reglines_a <- fake_data %>%
                   nudge_y = 15,
                   direction = "y") +
   guides(color = F) +
-  scale_color_brewer(type = "qual", palette = 2) +
+  scale_color_colorblind() +
   theme_classic() +
   # scale_x_continuous(limits = c(-7.8, -6.1)) +
   labs(y = "Prey Mass log(g)",
@@ -129,7 +125,7 @@ sim_reglines_b <- fake_data %>%
                   nudge_y = 15,
                   direction = "y") +
   guides(color = F) +
-  scale_color_brewer(type = "qual", palette = 2) +
+  scale_color_colorblind() +
   theme_classic() +
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
   labs(y = "Prey Mass log(g)",
@@ -170,7 +166,7 @@ sim_reglines_c <- fake_data %>%
           nudge_x = -0.2,
           nudge_y = 5) +
   guides(color = F) +
-  scale_color_brewer(type = "qual", palette = 2) +
+  scale_color_colorblind() +
   theme_classic() +
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
   labs(y = "Prey Mass log(g)",
@@ -208,7 +204,7 @@ sim_data_a <- fake_data %>%
             nudge_y = 15,
             direction = "y") +
   guides(color = F) +
-  scale_color_brewer(type = "qual", palette = 2) +
+  scale_color_colorblind() +
   theme_classic() +
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
   labs(y = "Prey Mass log(g)",
@@ -240,7 +236,7 @@ sim_data_b <- fake_data %>%
                   nudge_y = 15,
                   direction = "y") +
   guides(color = F) +
-  scale_color_brewer(type = "qual", palette = 2) +
+  scale_color_colorblind() +
   theme_classic() +
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
   labs(y = "Prey Mass log(g)",
@@ -272,7 +268,7 @@ sim_data_c <- fake_data %>%
             nudge_x = -0.2,
             nudge_y = 5) +
   guides(color = F) +
-  scale_color_brewer(type = "qual", palette = 2) +
+  scale_color_colorblind() +
   theme_classic() +
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
   labs(y = "Prey Mass log(g)",
