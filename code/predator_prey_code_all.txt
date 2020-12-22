@@ -9,7 +9,7 @@ library(ggrepel)
 library(janitor)
 
 # read data from Brose et al. 2006
-d <- readRDS(here("data/pred-prey-mass.csv"))
+d <- read.csv(here("data/pred-prey-mass.csv"))
 
 # make log prey and predator
 d$log_pred <- log(d$pred)
@@ -65,8 +65,6 @@ strongest_brm_d <- brm(log_prey ~ log_pred, data = d,
 saveRDS(strongest_brm_d, file = here("models/strongest_brm_d.rds"))
 
 # Extract posterior samples
-posts_weak <- posterior_samples(weak_brm_d) %>% as_tibble() %>% clean_names() %>% mutate(priors = "weak")
-posts_stronger <- posterior_samples(stronger_brm_d) %>% as_tibble() %>% clean_names() %>% mutate(priors = "stronger")
 posts_strongest <- posterior_samples(strongest_brm_d) %>% as_tibble() %>% clean_names() %>% mutate(priors = "strongest")
 
 
@@ -85,26 +83,27 @@ sim_reglines_a <- fake_data %>%
   geom_line(size = 0.2, aes(group = sim), alpha = 0.4) +
   geom_abline(data = reference_points, aes(slope = 0, intercept = y)) +
   geom_text_repel(data = reference_points %>% filter(model == "a"),
-                aes(x = max(d$log_pred) +  2 + rnorm(4, 0.2),
-                    y = y, label = reference),
-                hjust = 0, 
-                size = 3, 
-                nudge_x = 0,
-                direction = "y") +
+                  aes(x = max(d$log_pred) + 2,
+                      y = y, label = reference),
+                  hjust = 1, 
+                  size = 5, 
+                  nudge_x = 2,
+                  nudge_y = 15,
+                  direction = "y") +
   guides(color = F) +
   scale_color_colorblind() +
   theme_classic() +
   # scale_x_continuous(limits = c(-7.8, -6.1)) +
-  labs(y = "Simulated prey mass log(g) ",
-       x = "Mass of predator log(g)",
-       title = expression(paste("100 prior simulations of means (",mu["i"], " = ", alpha, " + ", beta, "x"["i"],")")),
-       subtitle = expression(paste("Weak priors: ", alpha%~%N(0, 1000),", ", ~ beta%~%N(0, 1000),", ", ~ sigma%~%exp(0.0001)))) +
+  labs(y = "Prey Mass log(g)",
+       x = "Predator Mass log(g)",
+       title = expression(paste("Simulated Means (",mu["i"], " = ", alpha, " + ", beta, "x"["i"],")")),
+       subtitle = "Weak Priors") +
   scale_x_continuous(limits = c(-20, 20)) +
-  # annotate("text", x = -3, y = 60000, size = 3,
+  # annotate("text", x = -3, y = 60000, size = 5,
   #          label = expression(paste("Weak priors: ", alpha%~%N(0, 1000),", ", ~ beta%~%N(0, 1000),", ", ~ sigma%~%exp(0.0001)))) +
   ylim(-60000, 60000) +
-  theme(plot.subtitle = element_text(size = 6),
-        plot.title = element_text(size = 8)) +
+  theme(text = element_text(size = 16),
+        legend.title = element_blank()) +
   NULL
 
 
@@ -116,26 +115,28 @@ sim_reglines_b <- fake_data %>%
   ggplot(aes(x = log_pred_mass, y = value)) + 
   geom_line(size = 0.2, aes(group = sim), alpha = 0.4) +
   geom_abline(data = reference_points, aes(slope = 0, intercept = y)) +
-geom_text(data = reference_points %>% filter(model == "c"),
-          aes(x = max(d$log_pred) + 2,
-              y = y, label = reference),
-          hjust = 0, 
-          size = 3, 
-          nudge_x = -0.2,
-          nudge_y = 15) +
+  geom_text_repel(data = reference_points %>% filter(model == "a"),
+                  aes(x = max(d$log_pred) + 2,
+                      y = y, label = reference),
+                  hjust = -1, 
+                  size = 5, 
+                  nudge_x = 2,
+                  nudge_y = 15,
+                  direction = "y") +
   guides(color = F) +
   scale_color_colorblind() +
   theme_classic() +
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
-  labs(y = "Simulated prey mass log(g)",
-       x = "Mass of predator log(g)",
+  labs(y = "Prey Mass log(g)",
+       x = "Predator Mass log(g)",
        title = "",
-       subtitle = expression(paste("Stronger priors: ", alpha%~%N(0, 10),", ", ~ beta%~%N(0, 10),", ", ~ sigma%~%exp(0.01)))) +
+       subtitle = "Stronger Priors") +
   scale_x_continuous(limits = c(-20, 20)) +
-  # annotate("text", x = -3, y = 3000, size = 3,
+  # annotate("text", x = -3, y = 3000, size = 5,
   #          label = expression(paste("Stronger priors: ", alpha%~%N(0, 10),", ", ~ beta%~%N(0, 10),", ", ~ sigma%~%exp(0.01)))) +
   ylim(-1000, 1000) +
-  theme(plot.subtitle = element_text(size = 6)) +
+  theme(text = element_text(size = 16),
+        legend.title = element_blank()) +
   NULL
 
 
@@ -158,22 +159,23 @@ sim_reglines_c <- fake_data %>%
           aes(x = max(d$log_pred) + 2,
               y = y, label = reference),
           hjust = 0, 
-          size = 3, 
+          size = 5, 
           nudge_x = -0.2,
           nudge_y = 5) +
   guides(color = F) +
   scale_color_colorblind() +
   theme_classic() +
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
-  labs(y = "Simulated prey mass log(g)",
-       x = "Mass of predator log(g)",
+  labs(y = "Prey Mass log(g)",
+       x = "Predator Mass log(g)",
        title = "",
-       subtitle = expression(paste("Strongest priors: ", alpha%~%N(0, 1),", ", ~ beta%~%N(0, 1),", ", ~ sigma%~%exp(0.5)))) +
+       subtitle = "Strongest Priors (with Posterior)") +
   scale_x_continuous(limits = c(-20, 20)) +
-  # annotate("text", x = -3, y = 80, size = 3,
+  # annotate("text", x = -3, y = 80, size = 5,
   #          label = expression(paste("Strongest priors: ", alpha%~%N(0, 1),", ", ~ beta%~%N(0, 1),", ", ~ sigma%~%exp(0.5)))) +
   ylim(-80, 80) +
-  theme(plot.subtitle = element_text(size = 6)) +
+  theme(text = element_text(size = 16),
+        legend.title = element_blank()) +
   geom_ribbon(data = c_cond_plot, aes(x = log_pred, ymin = lower, ymax = upper), color = "#E69F00", size = 1.2) +
   NULL
 
@@ -193,7 +195,7 @@ sim_data_a <- fake_data %>%
             aes(x = max(d$log_pred) + 2,
                 y = y, label = reference),
             hjust = 1, 
-            size = 3, 
+            size = 5, 
             nudge_x = 2,
             nudge_y = 15,
             direction = "y") +
@@ -201,15 +203,14 @@ sim_data_a <- fake_data %>%
   scale_color_colorblind() +
   theme_classic() +
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
-  labs(y = "Simulated prey mass log(g)",
-       x = "Mass of predator log(g)",
-       title = expression(paste("One prior simulation of data (",y["i"], " ~ N(", mu["i"],",",sigma,"))")),
-       subtitle = expression(paste("Weak priors: ", alpha%~%N(0, 1000),", ", ~ beta%~%N(0, 1000),", ", ~ sigma%~%exp(0.0001)))) +
+  labs(y = "Prey Mass log(g)",
+       x = "Predator Mass log(g)",
+       title = expression(paste("Simulated Data (n=1) (",y["i"], " ~ N(", mu["i"],",",sigma,"))")),
+       subtitle = "Weak Priors") +
   scale_x_continuous(limits = c(-20, 20)) +
   ylim(-60000, 60000) +
-  theme(plot.subtitle = element_text(size = 6),
-        plot.title = element_text(size = 8)) +
-  # facet_grid(. ~ sim) +
+  theme(text = element_text(size = 16),
+        legend.title = element_blank()) +
   NULL
 
 
@@ -221,25 +222,26 @@ sim_data_b <- fake_data %>%
   ggplot(aes(x = log_pred_mass, y = value)) + 
   geom_point(size = 0.1, alpha = 0.2) +
   geom_abline(data = reference_points, aes(slope = 0, intercept = y)) +
-  geom_text(data = reference_points %>% filter(model == "c"),
-            aes(x = max(d$log_pred) + 2,
-                y = y, label = reference),
-            hjust = 0, 
-            size = 3, 
-            nudge_x = -0.2,
-            nudge_y = 15) +
+  geom_text_repel(data = reference_points %>% filter(model == "a"),
+                  aes(x = max(d$log_pred) + 2,
+                      y = y, label = reference),
+                  hjust = -1, 
+                  size = 5, 
+                  nudge_x = 2,
+                  nudge_y = 15,
+                  direction = "y") +
   guides(color = F) +
   scale_color_colorblind() +
   theme_classic() +
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
-  labs(y = "Simulated prey mass log(g)",
-       x = "Mass of predator log(g)",
+  labs(y = "Prey Mass log(g)",
+       x = "Predator Mass log(g)",
        title = "",
-       subtitle = expression(paste("Stronger priors: ", alpha%~%N(0, 10),", ", ~ beta%~%N(0, 10),", ", ~ sigma%~%exp(0.01)))) +
+       subtitle = "Stronger Priors") +
   scale_x_continuous(limits = c(-20, 20)) +
   ylim(-1000, 1000) +
-  theme(plot.subtitle = element_text(size = 6)) +
-  # facet_grid(. ~ sim) +
+  theme(text = element_text(size = 16),
+        legend.title = element_blank()) +
   NULL
 
 
@@ -256,23 +258,23 @@ sim_data_c <- fake_data %>%
             aes(x = max(d$log_pred) + 2,
                 y = y, label = reference),
             hjust = 0, 
-            size = 3, 
+            size = 5, 
             nudge_x = -0.2,
             nudge_y = 5) +
   guides(color = F) +
   scale_color_colorblind() +
   theme_classic() +
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
-  labs(y = "Simulated prey mass log(g)",
-       x = "Mass of predator log(g)",
+  labs(y = "Prey Mass log(g)",
+       x = "Predator Mass log(g)",
        title = "",
-       subtitle = expression(paste("Strongest priors: ", alpha%~%N(0, 1),", ", ~ beta%~%N(0, 1),", ", ~ sigma%~%exp(0.5)))) +
+       subtitle = "Strongest Priors (with raw data)") +
   scale_x_continuous(limits = c(-20, 20)) +
-  # annotate("text", x = -3, y = 80, size = 3,
+  # annotate("text", x = -3, y = 80, size = 5,
   #          label = expression(paste("Strongest priors: ", alpha%~%N(0, 1),", ", ~ beta%~%N(0, 1),", ", ~ sigma%~%exp(0.1)))) +
   ylim(-80, 80) +
-  theme(plot.subtitle = element_text(size = 6)) +
-  # facet_grid(. ~ sim) +
+  theme(text = element_text(size = 16),
+        legend.title = element_blank()) +
   geom_point(data = d, aes(x = log_pred, y = log_prey), color = "#E69F00", shape = 21, size = 0.1) + # add real data
   NULL
 
@@ -287,8 +289,8 @@ sim_all <- plot_grid(sim_reglines_a,
                      labels = "auto")
 
 saveRDS(sim_all, file = "plots/mod_1.rds")
-ggsave(sim_all, file = "plots/mod_1.tiff", dpi = 400, width = 12, height = 8)
-ggsave(sim_all, file = "plots/mod_1.jpg", dpi = 400, width = 9, height = 6)
+ggsave(sim_all, file = "plots/mod_1.tiff", dpi = 400, width = 16, height = 11)
+ggsave(sim_all, file = "plots/mod_1.jpg", dpi = 400, width = 16, height = 11)
 
 
 

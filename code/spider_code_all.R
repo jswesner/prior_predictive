@@ -9,14 +9,7 @@ library(scales)
 library(here)
 
 # load spider data from Warmbold and Wesner 2018 
-
-
-spiders <- read_csv("https://raw.githubusercontent.com/jswesner/warmbold_wesner/master/webs.csv") %>% 
-  mutate(date = mdy(date),
-         datefac = as.factor(date)) %>% 
-  rename(cage = eid) %>% 
-  select(-X1) %>% 
-  filter(trt != "both" & trt != "cagectrl")
+spiders <- read.csv(here("data/spiders.csv"))
 
 
 
