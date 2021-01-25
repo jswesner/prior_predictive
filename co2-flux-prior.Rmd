@@ -1,0 +1,122 @@
+---
+title: "CO2 Flux"
+author: "Justin Pomeranz - J Pomz"
+date: "11/30/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Standardizing variables to assist with prior selection
+
+CO2 data from the COSORE package 
+Bond‐Lamberty, B, Christianson, DS, Malhotra, A, et al. COSORE: A community database for continuous soil respiration and other soil‐atmosphere greenhouse gas flux data. Glob Change Biol. 2020; 26: 7268– 7283. https://doi.org/10.1111/gcb.15353
+
+Simplified dataset, looking at mean CO2 fluxes from deciduous broadleaf forests in the northern hemisphere
+
+```{r message = FALSE}
+library(tidyverse)
+d <- readRDS("data/co2_july.RDS")
+```
+
+I have no idea what a "normal" CO2 flux is, or even what a range would be. So the data includes a scaled (CO2~i~ / max(CO2)) and standardized (Z-score; (CO2~i~ - mean(CO2)) / SD(CO2) ) version of the CO2 variable. 
+
+```{r}
+names(d)
+```
+
+I have also included a scaled and standardized version of the latitude variable. 
+
+Below, I use the scaled version of each $$I'M NOT SURE WHICH TO USE ??  let's chat$$
+
+The scaled transformation means that CO2 flux is now between 0-1. We want to leave 0, as this is a biologically relevant measurement, i.e., $no$ CO2 flux. 
+
+let's assume a linear relationship of co2 flux with lattitude. 
+The full Bayesian model can be described as:
+$$  Mean CO_{2} flux_{site} \sim  dnorm(\mu, \sigma) $$
+$$    \mu = \alpha + \beta * Latitude_i $$
+$$    \alpha \sim dnorm(\mu, \sigma) $$
+$$    \beta \sim dnorm(\mu, \sigma) $$
+$$    \sigma \sim dexp(\delta) $$
+
+Becasue this is scaled between 0 and 1, a reasonable expectation for the intercept, \alpha, is 0.5. We will give it a SD of 1 to start with. 
+
+I have no idea if we should expect a positive or negative relatinoship with latitude, so we will center \beta at 0, and give it a flat SD of 10. 
+
+```{r}
+set.seed(1225)
+N <- 100
+a <- rnorm(N, 0.5, 1) # prior distribution of alpha
+b <- rnorm(N, 0, 10) # prior distribution of beta
+
+# set plot axis limits
+xlim = c(0, 1)
+ylim = c(0, 1)
+# setup the plot
+plot(NULL, xlim = xlim, ylim = ylim,
+     xlab = "Latitude (scaled)", ylab = "CO2 flux (scaled)")
+mtext(("a ~ rnorm(0.5,1)      b ~ rnorm(0,10)"))
+
+# plot 100 lines based on the prior distributions
+for (i in 1:N){
+  curve(a[i] + b[i]*x,
+        from = 0,
+        to = 1,
+        add = TRUE,
+        col = gray(0, 0.3))
+}
+```
+Taming down the beta:
+```{r}
+set.seed(1225)
+N <- 100
+a <- rnorm(N, 0.5, 1) # prior distribution of alpha
+b <- rnorm(N, 0, 0.5) # prior distribution of beta
+
+# set plot axis limits
+xlim = c(0, 1)
+ylim = c(0, 1)
+# setup the plot
+plot(NULL, xlim = xlim, ylim = ylim,
+     xlab = "Latitude (scaled)", ylab = "CO2 flux (scaled)")
+mtext(("a ~ rnorm(0.5,1)      b ~ rnorm(0,0.5)"))
+
+# plot 100 lines based on the prior distributions
+for (i in 1:N){
+  curve(a[i] + b[i]*x,
+        from = 0,
+        to = 1,
+        add = TRUE,
+        col = gray(0, 0.3))
+}
+```
+Force \alpha to be closer to mean CO2 flux
+
+```{r}
+set.seed(1225)
+N <- 100
+a <- rnorm(N, 0.5, 0.25) # prior distribution of alpha
+b <- rnorm(N, 0, 0.5) # prior distribution of beta
+
+# set plot axis limits
+xlim = c(0, 1)
+ylim = c(0, 1)
+# setup the plot
+plot(NULL, xlim = xlim, ylim = ylim,
+     xlab = "Latitude (scaled)", ylab = "CO2 flux (scaled)")
+mtext(("a ~ rnorm(0.5,0.25)      b ~ rnorm(0,0.5)"))
+
+# plot 100 lines based on the prior distributions
+for (i in 1:N){
+  curve(a[i] + b[i]*x,
+        from = 0,
+        to = 1,
+        add = TRUE,
+        col = gray(0, 0.3))
+}
+```
+This limits the priors to be within the expected observation space, while still allowing for some pretty extreme relationships
+
+
