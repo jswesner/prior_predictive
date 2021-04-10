@@ -9,7 +9,40 @@ library(scales)
 library(here)
 
 # load spider data from Warmbold and Wesner 2018 
+d <- read.csv(here("data/pred-prey-mass.csv"))
 spiders <- read.csv(here("data/spiders.csv"))
+
+
+# plot raw data
+
+d_plot <- d %>% 
+  ggplot(aes(x = log_prey, y = log_pred)) +
+  geom_point(alpha = 0.1, size = 0.3) +
+  labs(y = "Prey Mass log(g)",
+       x = "Predator Mass log(g)") +
+  theme_classic() 
+
+spiders_plot <- spiders %>% 
+  mutate(date_date = ymd(date),
+         Treatment = case_when(trt == "buffalo" ~ "Smallmouth Buffalo",
+                               trt == "green" ~ "Green Sunfish",
+                               TRUE ~ "Fishless Control")) %>% 
+  ggplot(aes(x = date_date, y = webs, fill = Treatment, shape = Treatment)) + 
+  geom_point(position = position_jitterdodge(jitter.height = 0.09, jitter.width = 0, dodge.width = 2.5),
+             alpha = 0.7,
+             size = 0.8) +
+  scale_fill_colorblind() +
+  scale_shape_manual(values = c(21, 22, 24)) +
+  labs(y = "Number of Spiders",
+       x = "Date") +
+  theme_classic() 
+
+data_plots <- plot_grid(d_plot, spiders_plot, ncol = 2, align = "h",
+                        rel_widths = c(1, 1.6),
+                        labels = "auto")
+
+saveRDS(data_plots, file = "plots/data_plots.rds")
+ggsave(data_plots, file = "plots/data_plots.jpg", dpi = 600, width = 7, height = 2.4)
 
 
 # Fit Models - Posterior --------------------------------------------------

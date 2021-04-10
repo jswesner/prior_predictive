@@ -1,6 +1,6 @@
-﻿Parameter,Wide,Narrow,Narrowest,Wide,Narrow,Narrowest
-Alpha,"N(0,1000)","N(0,10)","N(0,1)","N(0,10)","N(0,1)","N(0,0.1)"
-Beta(s),"N(0,1000)","N(0,10)","N(0,1)","N(0,10)","N(0,1)","N(0,0.1)"
-Sigma,Exp(0.001),Exp(0.01),Exp(0.1),,,
-Sigma_alpha,,,,Exp(0.1),Exp(1),Exp(2)
-Sigma_cage,,,,Exp(0.1),Exp(1),Exp(2)
+Parameter,Wide,Narrow,Narrowest,Wide,Narrow,Narrowest
+$\\alpha$,"N(0, 1000)","N(0,10)","N(0,1)","N(0,10)","N(0,1)","N(0,0.1)"
+$\\Beta$,"N(0, 1000)","N(0,10)","N(0,1)","N(0,10)","N(0,1)","N(0,0.1)"
+$\\sigma$,Exp(0.001),Exp(0.01),Exp(0.1),,,
+$\\sigma_{alpha}$,,,,Exp(0.1),Exp(1),Exp(2)
+$\\sigma_{cage}$,,,,Exp(0.1),Exp(1),Exp(2)
