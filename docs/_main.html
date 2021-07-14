@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>_main.utf8</title>
+  <meta name="description" content="" />
+  <meta name="generator" content="bookdown 0.20 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="_main.utf8" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="_main.utf8" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+
+
+<script src="libs/header-attrs-2.3/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+
+
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"></a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<!--bookdown:title:end-->
+<!--bookdown:title:start-->
+<p><strong>Choosing priors in Bayesian ecological models by simulating from the prior predictive distribution</strong></p>
+<p>Jeff S. Wesner and Justin P.F. Pomeranz</p>
+<p>University of South Dakota, Department of Biology, Vermillion, SD 57069</p>
+<p><a href="mailto:Jeff.Wesner@usd.edu" class="email">Jeff.Wesner@usd.edu</a></p>
+<div style="page-break-after: always;"></div>
+<p><strong>Abstract</strong></p>
+<p>Bayesian data analysis is increasingly used in ecology, but prior specification remains focused on choosing non-informative priors (e.g., flat or vague priors). One barrier to choosing more informative priors is that priors must be specified on model parameters (e.g., intercepts, slopes, sigmas), but prior knowledge often exists on the level of the response variable. This is particularly true for common models in ecology, like generalized linear mixed models, which may have a link function and dozens of parameters, each of which needs a prior distribution. We suggest that this difficulty can be overcome by simulating from the prior predictive distribution and visualizing the results on the scale of the response variable. In doing so, some common choices for non-informative priors on parameters can easily be seen to produce biologically impossible values of response variables. Such implications of prior choices are difficult to foresee without visualization. We demonstrate a workflow for prior selection using simulation and visualization with two ecological examples (predator-prey body sizes and spider responses to food competition). This approach is not new, but its adoption by ecologists will help to better incorporate prior information in ecological models, thereby maximizing one of the benefits of Bayesian data analysis.</p>
+<p>Keywords: <em>Bayesian, prior predictive distribution, GLMM, simulation</em></p>
+<div style="page-break-after: always;"></div>
+<p><strong>Introduction</strong></p>
+<p>The distinguishing feature between Bayesian and non-Bayesian statistics is that Bayesian statistics treats unknown parameters as random variables governed by a probability distribution, while non-Bayesian statistics treats unknown parameters as fixed <span class="citation">(Ellison 2004, Hobbs and Hooten 2015)</span>. A common misconception is that only Bayesian statistics incorporates prior information. However, non-Bayesian methods can and often do incorporate prior information, either informally in the choices of likelihoods and model structures, or formally as penalized likelihood or hierarchical modeling <span class="citation">(Hobbs and Hooten 2015, Morris et al. 2015)</span>.</p>
+<p>While prior information is not unique to Bayesian models, it is required of them. For example, in a simple linear regression of the form <span class="math inline">\(y \sim N(\alpha + \beta x, \sigma)\)</span>, the intercept <span class="math inline">\(\alpha\)</span>, slope <span class="math inline">\(\beta\)</span>, and error <span class="math inline">\(\sigma\)</span> are unknown parameters that need a prior probability distribution. There are differing opinions and philosophies on the best practices for choosing priors <span class="citation">(Lindley 1961, Edwards et al. 1963, Morris et al. 2015, Wolf et al. 2017, Lemoine 2019, Banner et al. 2020, Gelman et al. 2017)</span>. In ecology, a common practice is to assign so-called non-informative priors that effectively assign equal probability to all possible values using either uniform or diffuse normal priors with large variances <span class="citation">(Lemoine 2019)</span>. These priors allow Bayesian inference to proceed (i.e. produce a posterior distribution), but with presumably limited influence of the priors <span class="citation">(Lemoine 2019)</span>.</p>
+<p>Reasons for using non-informative priors are varied but are at least in part driven by a desire to avoid the appearance of subjectivity and/or a reliance on default settings in popular software <span class="citation">(Gelman and Hennig 2017, Banner et al. 2020)</span>. There are several arguments against this approach. First, “non-informative” is a misnomer. All priors influence the posterior distribution to some extent <span class="citation">(Hobbs and Hooten 2015)</span>. As a result, a prior cannot just be assumed as non-informative based on default settings or a wide variance <span class="citation">(Seaman III et al. 2012)</span>. Its implications for the model should be checked just like any other subjective assumption in data analysis, whether Bayesian or not <span class="citation">(Banner et al. 2020, Gelman et al. 2017)</span>. Second, adhering to non-informative priors removes a major potential benefit of Bayesian analysis, which is to explicitly incorporate prior research and expertise into new science <span class="citation">(Hobbs and Hooten 2015, Lemoine 2019, Rodhouse et al. 2019)</span>. Third, informative priors can help to reduce spurious conclusions due to errors in magnitude or sign of an effect by treating extreme values in the data skeptically <span class="citation">(Gelman et al. 2012, Lemoine 2019)</span>. Finally, informative priors make computational algorithms like MCMC run more efficiently, which can save hours or days of computing time in complex models <span class="citation">(Hobbs and Hooten 2015)</span>.</p>
+<p>While there are clear arguments for why ecologists <em>should</em> use more informative priors, it is often difficult to know <em>how</em> to use them. Even for seemingly simple and routine models, like logistic or Poisson regression, it can be difficult to understand <em>a priori</em> how priors affect the model, because they must be assigned in the context of likelihood with a linearizing link-function <span class="citation">(Seaman III et al. 2012, Gelman et al. 2017)</span>. In other words, prior specification takes place on model parameters (e.g., slopes, intercepts, variances), but prior knowledge is often easier to assess on the model outcomes <span class="citation">(Kadane et al. 1980, Bedrick et al. 1996, Gabry et al. 2019)</span>. This is particularly true for the types of models that are commonly used in ecology, such as generalized linear mixed models with interactions, which may have dozens of parameters and hyperparameters, each of which require a prior probability distribution <span class="citation">(Bedrick et al. 1996, McElreath 2020)</span>.</p>
+<p>We suggest that ecologists can address this problem by simulating from the prior predictive distribution and visualizing the implications of the priors on outcomes of interest (e.g., means and confidence intervals of treatment groups, simulated data, or regression lines). In this paper, we demonstrate this approach using two case studies with ecological data. All data and code are available at: <a href="https://github.com/jswesner/prior_predictive" class="uri">https://github.com/jswesner/prior_predictive</a>.</p>
+<p><strong>Prior Predictive Simulation</strong></p>
+<p>An attractive feature of the Bayesian approach is that the models are generative. This means that we can simulate potential data from the model so long as the parameters are assigned a proper probability distribution <span class="citation">(Gelman et al. 2013)</span>. This feature is routinely used to check models and prior influence <em>after</em> fitting the data using the posterior predictive distribution <span class="citation">(Lemoine 2019, Gelman et al. 2020)</span>, but it can also be used before seeing the data using the prior predictive distribution <span class="citation">(Gabry et al. 2019)</span>.</p>
+<p>The general workflow for prior predictive simulation is:</p>
+<ol style="list-style-type: decimal">
+<li><p>Draw N values from different prior distributions</p></li>
+<li><p>For each draw, simulate a model outcome or new data from the likelihood</p></li>
+<li><p>Plot the results</p></li>
+<li><p>Use domain knowledge to assess whether simulated values reflect prior knowledge</p></li>
+<li><p>If simulated values do not reflect prior knowledge, change the prior distribution, likelihood, or both and repeat the simulation from step 1</p></li>
+<li><p>If simulated values reflect prior knowledge, add the data and estimate the posterior distribution</p></li>
+</ol>
+<p>This amounts to a prior predictive check to satisfy the expectation that “simulations from the full Bayesian model…should be plausible data sets” <span class="citation">(Kennedy et al. 2019)</span>. We demonstrate it with two motivating examples.</p>
+<p><strong>Example 1: Predator-Prey Body Sizes - Simple Linear Regression</strong></p>
+<p><em>Data</em> - Understanding predator-prey interactions has long been a research interest of ecologists. Body size is related to a number of aspects that influence these interactions. For example, predators are often gape-limited, meaning that larger predators should be able to eat larger prey. The data set of <span class="citation">Brose et al. (2006)</span> documents over 10,000 predator-prey interactions, including the mean mass of each.</p>
+<p><em>Model</em> - We examined the hypothesis that the prey body mass increases log-linearly with predator body mass using a simple linear model:</p>
+<p><span class="math display">\[\begin{align}
+\text{log} (y_i) \sim N(\mu_i, \sigma)\\
+\mu_i = \alpha + \beta \text{ log}(x_i)\\
+\alpha \sim Normal(0, \sigma_{\alpha})\\
+\beta \sim Normal(0, \sigma_{\beta})\\
+\sigma \sim Exponential(\phi)
+\end{align}\]</span></p>
+<p>where <span class="math inline">\(\text{log}(y_i)\)</span> is natural log transformed prey mass and <span class="math inline">\(\text{log}(x_i)\)</span> is natural log transformed predator mass.</p>
+<p><em>Priors</em> - For the <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span> priors, we first assign a mean of 0 with a “non-informative” standard deviation of 1000 [<span class="math inline">\(N(0, 1000)\)</span>] (Table 1). The mean of 0 in a normal distribution implies that the intercept and slope have equal probability of being positive or negative. There is nothing special about this prior, but it was a common default setting in earlier Bayesian software to generate “flat” prior distributions and is commonly used in the ecological literature <span class="citation">(McCarthy and Masters 2005, Banner et al. 2020)</span>. For the exponential distribution, we specify an initial <span class="math inline">\(\phi\)</span> of 0.00001, chosen by plotting 100 simulations from the exponential function in R <span class="citation">(R Core Team 2020)</span> with varying values of <span class="math inline">\(\phi\)</span> [e.g., <code>plot(rexp(100, 0.00001)</code>]. A value of 0.00001 generated an average deviance of ~1,000 with values up to ~5,000, indicating the possibility of producing extremely large values.</p>
+<p>After simulating regressions from these initial priors, we specified successfully tighter priors and repeated the simulations (Table 1; Figure 1). Those simulations were compared to reference points representing prior knowledge (Mass of earth, a Blue Whale, a virus, and a Carbon-12 atom). The goal was to use these reference points to find a joint prior distribution that produced reasonable values of potential prey masses. We did this using two levels of the model (<span class="math inline">\(\mu_i\)</span> and <span class="math inline">\(y_i\)</span>). For <span class="math inline">\(\mu_i\)</span>, we simulated 100 means across each value of <span class="math inline">\(x_i\)</span> and plotted them as regression lines. For <span class="math inline">\(y_i\)</span>, we simulated a fake data set containing simulated values of log prey mass for each of the 13,085 values of log predator mass (<span class="math inline">\(x_i\)</span>) in the <span class="citation">Brose et al. (2006)</span> data.</p>
+<p><em>Results</em> - The weak “non-informative” priors make nonsense predictions (Figure 1a-c). In Figure 1a, all of the lines are impossibly steep, suggesting that predators could plausibly eat prey that are larger than earth or smaller than an atom. The stronger priors in Figure 1b suffer from the same problem, though the effect is less severe. The strongest priors (Figure 1c) produce more reasonable predictions, though they are still quite vague, with positive probability that predators could eat prey larger than an adult Blue Whale. The simulated fake data sets tell a similar story (Figure 1d-f), but with the added influence of <span class="math inline">\(\sigma\)</span> (Equation 1).</p>
+<p>We fit the model using the strongest prior set and overlaid these on the prior simulations (Figure 1c,f). As expected, there is a strong positive relationship between log predator and log prey size (Figure 1c - orange line), despite the uncertainty in the prior. The intercept is -4.8 ± 0.04 (mean ± sd), the slope is 0.6 ± 0.01, and sigma is 3.7 ± 0.02. Simulated data show a wide range of predator-prey size pairings, but all are within a reasonable range compared to prior predictions (Figure 1f).</p>
+<p>There are several benefits to choosing a stronger prior. First, it is difficult to justify the two weakest priors on biological grounds. They place large amounts of prior probability on impossible values. This can matter when priors need to be justified to a granting agency or to reviewers. More critically, specification of priors can have conservation or legal implications, and the ability to justify priors with simulation helps to improve transparency <span class="citation">(Crome et al. 1996, Banner et al. 2020)</span>. Stronger priors also improve computational efficiency <span class="citation">(McElreath 2020)</span>. We fit these models using the <em>brms</em> package <span class="citation">(Burkner 2017)</span>. The models with stronger or strongest priors were up to 50% faster than the model with weak priors, taking 56 vs 28 seconds on a standard laptop (compilation time + warmup time + sampling time). For more complex models that take longer to run, this improvement can save hours or days of computing time.</p>
+<p><em>Caveats</em> - We know from the literature that predators are generally larger than their prey by 2-3 orders of magnitude <span class="citation">(Trebilco et al. 2013)</span>. Therefore, it would make sense to alter the prior mean of the intercept to a value below zero, perhaps using an average predator/prey mass comparison from the literature. That is apparent from the prior versus posterior comparison in Figure 1c. Similarly, the fact that larger predators tend to eat larger prey is well-known, so the prior on the slope <span class="math inline">\(\beta\)</span> could be changed to a positive mean. Another option is to standardize the data prior so that the regression slopes can be interpreted as units of standard deiation <span class="citation">(McElreath 2020)</span>.</p>
+<p><strong>Example 2: Spider Abundance - Generalized Linear Mixed Model</strong></p>
+<p><em>Data</em> - This data set comes from <span class="citation">Warmbold and Wesner (2018)</span>, who measured terrestrial spider resposes to different combinations of freshwater fish using fish enclosure cages in a backwater of the Missouri River, USA. They hypothesized that fish would reduce the emergence of adult aquatic insects by eating the larval stages in the water, causing a reduction in terrestrial spiders that feed on the adult forms of those insects. The original experiment contained six treatments. Here, we present a simplified version comparing spider abundance above three treatments that contain either Smallmouth Buffalo (<em>Ictiobus bubalus</em>), Green Sunfish (<em>Lepomis cyanellus</em>), or a fishless control. Each treatment had four replicates for a total of 12 cages (each 2.3 m<span class="math inline">\(^2\)</span>). The number of occupied spider webs above each cage was counted on four dates over the 29-day experiment.</p>
+<p><em>Model</em> - We fit a generalized linear mixed model with a Poisson likelihood, since the response variable (# webs) is a non-negative integer. The predictor variables were date, treatment, and a date x treatment interaction with a random intercept for cages. Describing the model as having two main effects and an interaction is deceptively simple. In reality, the model has 13 parameters that require a prior specification: 11 “fixed” effects that indicate all combinations of date x treatment, plus 1 intercept and a hyperprior <span class="math inline">\(\phi\)</span> on the intercept:</p>
+<p><span class="math display">\[\begin{gather}
+y_i \sim Poisson(\lambda_i)\\
+\text{log} (\lambda_i) = \alpha + \alpha_{[cage]} +\beta_1x_{trt_i = fishless} + \beta_2x_{trt_i = green} + ...\beta_{11}x_{trt_i = green:date_i = 4}\\
+\alpha \sim Normal(0, \sigma_{\alpha})\\
+\alpha_{[cage_{1-12}]} \sim N(0, \sigma_{cage})\\
+\beta_{1...11} \sim Normal(0, \sigma_{\beta_{1...11}})\\
+\sigma_{cage} \sim Exponential(\phi) 
+\end{gather}\]</span></p>
+<p>where each <span class="math inline">\(y_i\)</span> is described by a Poisson distribution with mean <span class="math inline">\(\lambda_i\)</span>. Because the likelihood is not normal, we specify a log link - <span class="math inline">\(\text{log}(\lambda_i)\)</span> - so that the mean can be estimated as a linear function of predictors. The intercept <span class="math inline">\(\alpha\)</span> represents the predicted log mean number of spiders in the treatment with Smallmouth Buffalo on the first sample date. The choice of reference treatment is arbitrary. Choosing Smallmouth Buffalo and the first date as the intercept is the default choice in R <span class="citation">(R Core Team 2020)</span> because the treatment is coded first alphabetically (“buffalo”) and first numerically (“2015-06-08”).</p>
+<p><em>Priors</em> - As before, we simulated outcomes under three model scenarios, each with different priors (Table 1; Figure 2a-c). Another complication in this model is the log-link, which changes the biological interpretation of the parameters. With a Poisson likelihood and log-link, parameter values must be exponentiated and then interpreted as a multiplier. Thus, a value of 1.5 for the <span class="math inline">\(\beta_x\)</span> indicates that the treatment contains exp(1.5) = 4.5 <em>times</em> more spiders than the reference treatment on the first sample date. This is an example of the principle that the prior can only be understood in the context of the likelihood <span class="citation">(Gelman et al. 2017)</span>.</p>
+<p><em>Results</em> - If all we knew was that spiders were counted above 2.32 m<span class="math inline">\(^2\)</span> cages but we did not know anything else about the experiment (i.e. the ecosystem, the question, the spider taxa), then we could still use the prior predictive distribution to select more informative priors. The weakest priors place substantial probabilities on values of &gt;100,000 spiders per cage <em>on average</em> (Figure 2a), and include a small number of predictions on the final sample date with more than 100 million spiders (Figure 2c). We looked up the range of spider masses (~0.0005 to 170 grams). If we assume our spiders are relatively small, say 0.01 grams, then 100 million spiders would equal 30 tons of spiders. This is approximately equal to the mass of ~6 adult hippopotamus’s (each ~4 tons).</p>
+<p>However, in this case we do have prior information. In a previous study using the same cages in the same backwater, <span class="citation">Warmbold (2016)</span> counted between 0 and 2 spiders per cage. The present experiment had a slightly different design, in which a small rope was added to the center of each cage to increase the area of attachment <span class="citation">(Warmbold and Wesner 2018)</span>. If we assume that the rope will double the number of spiders that could colonize, then it seems reasonable to expect ~ 4 spiders per cage. There is obvious error associated with this, since the experiment was conducted in a different year and a different month. For that reason, we chose the moderate prior (Figure 2b,d) to use in the final model. It places most of the prior probability on values between ~1 to 100 spiders, but also allows for some extreme possibilities of &gt;1000 spiders per cage (Figure 2d). The strongest priors also appear reasonable, placing most of the prior probability between ~1 to 10 spiders, while allowing for up to ~100 spiders in extreme cases (Figure 2c,e).</p>
+<p>Figure 2b,e shows the results after fitting the model to data. Spider counts ranged from 0 to 5 spiders per cage, resulting in mean spider densities of ~1 to 4 spiders among the date x treatment combinations (Supplementary Data). Simulating from the prior and posterior predictive distributions shows the model predictions for the number of spiders we might expect at a new cage (i.e. a cage sampled from this site at another time). Before seeing the data, the model suggested reasonable probabilities of collecting 10 to &gt;100 spiders. After seeing the data, the model suggests that finding ~10 or more spiders would be surprising (Figure 2e).</p>
+<p>In addition to the computational and logical benefits of stronger priors as mentioned above, the stronger prior specifications in this model have a clear influence on the posterior (Figure S1). In particular, the stronger prior used in the model is more conservative, pulling the posterior means away from extreme high or low values. As such it acts to prevent overconfidence in large or small effect sizes (e.g., Type M errors) <span class="citation">(Lemoine 2019)</span>. This skepticism of stronger priors is a benefit that is most apparent with small sample sizes, which are common in ecological studies.</p>
+<p><em>Caveats</em> - Each of the 11 <span class="math inline">\(\beta\)</span>’s was assigned an independent prior. An alternative approach would be to assign <span class="math inline">\(\beta\)</span> priors from a multivariate normal distribution <span class="citation">(Hobbs and Hooten 2015)</span>. In addition, the likelihood assumes that the variance is equal to the mean. An alternative likelihood, such as a negative binomial, would allow us to model variances independently. Finally, the strongest priors we specified overwhelmed the small data set, pulling all treatments towards the same mean, regardless of the data (Figure S1). Whether that is a problem or not depends on how skeptical we are that the cages or treatments would have different numbers of spiders.</p>
+<p><strong>Discussion</strong></p>
+<p>Bayesian statistics is increasingly used by ecologists <span class="citation">(Ellison 2004, McCarthy and Masters 2005, Hooten and Hobbs 2015, Touchon and McCoy 2016)</span>, yet the preponderance of studies continue to rely on diffuse and/or default priors <span class="citation">(Lemoine 2019, Banner et al. 2020)</span>. Using two case studies with a linear regression and a generalized linear mixed model - two common types of models in ecology <span class="citation">(Touchon and McCoy 2016)</span> - we demonstrated how visualization on the scale of the outcome can improve prior choices. From our own experience teaching Bayesian statistics to graduate students (JSW) and the experiences of others <span class="citation">(James et al. 2010, Gabry et al. 2019)</span>, we suspect that this approach will help to remove confusion over choosing more informative priors by aligning the choices more closely to the domain expertise of the users <span class="citation">(Bedrick et al. 1996, James et al. 2010)</span>.</p>
+<p>Choosing priors based on their implications on the outcome scale is not new. <span class="citation">Kadane et al. (1980)</span> described a similar approach with normal linear regressions to elicit prior information from experts. <span class="citation">Bedrick et al. (1996)</span> expanded it to generalized linear models. More recently, <span class="citation">Gabry et al. (2019)</span> used it in a model with random effects to measure global air quality and <span class="citation">Kennedy et al. (2019)</span> used a similar approach for models in cognitive science. A primary difference between the earlier and later uses of prior predictive simulation is improvement in visualization techniques <span class="citation">(Gabry et al. 2019)</span>, which makes it easier evaluate prior choices on a visual <em>distribution</em> of outcome measures, rather than only point estimates.</p>
+<p>Assessing and visualizing priors on the outcome scale of a model makes clear what many current Bayesian approaches emphasize: it is almost never the case that we have absolutely zero prior information <span class="citation">(Hobbs and Hooten 2015, Lemoine 2019, Banner et al. 2020)</span>. For example, it does not take expertise in ecology to know that predators cannot eat prey larger than earth. Yet this type of impossible prior belief is exactly what many Bayesian models encode with non-informative priors. It <em>does</em> take ecological expertise to know whether it is more probable for predators to eat prey that are 2 times larger or 2 times smaller, or whether the log-linear model should have a different functional form (e.g., non-linear). Critiquing priors in this way would, we argue, lead to better use of Bayesian methods than current practices that focus on finding the least informative prior <span class="citation">(Lemoine 2019, Banner et al. 2020)</span>. Even for models with more abstract outcomes than body size (e.g., gene methylation, stoichiometric ratios, pupation rates of a new insect species), it is almost always the case that ecologists have some sense of what reasonable measures might be. After all, it would be impossible to do a study without first knowing what we will measure.</p>
+<p>Visualizing simulations from the prior predictive distribution represents one aspect of the overall Bayesian modeling workflow <span class="citation">(Gelman et al. 2020, Schad et al. 2020)</span>. Like any approach to data analysis, the Bayesian workflow involves iteratively checking assumptions and implications of a model, from data collection and model design to prior choices and model inference <span class="citation">(Hooten and Hobbs 2015, Gelman et al. 2020)</span>. Traditionally, the role of priors in this workflow has focused on choosing the least informative priors possible <span class="citation">(Hobbs and Hooten 2015)</span>. When prior criticism is used, it is usually done after the model is fit with prior sensitivity analyses and/or plots of prior versus posterior parameters <span class="citation">(Korner-Nievergelt et al. 2015)</span>. The approach we demonstrate does not obviate the need for these techniques. Rather, it adopts the approaches that are generally reserved for exploring the implications of the posterior distribution and applies them to the prior distribution. In doing so, it helps to lessen the impact of poor prior distributions later in the analysis workflow.</p>
+<p>An added benefit to choosing more informative priors is that it reduces computational time, because it limits the parameter space that an MCMC algorithm needs to explore. In the relatively simple models we used here, computational improvements are minimal. But ecologists are using increasingly sophisticated models <span class="citation">(Touchon and McCoy 2016)</span>, for which improvements in computational efficiency are likely to be important. An irony in this improvement is that it contradicts a common justification of using non-informative priors to “let the data speak for themselves”. In a model with such priors, much of the “speaking” is done by the priors in the sense of sampling parameter spaces that are incompatible with reasonable data. To rearrange the statement, data can only speak for themselves if the microphone is properly tuned.</p>
+<p><strong>Acknowledgements</strong></p>
+<p>This material is based upon work supported by the National Science Foundation under Grant No. 1837233. JSW thanks the students in his graduate Bayesian class for asking challenging questions. We thank <span class="citation">Brose et al. (2006)</span> for making their data publicly available.</p>
+<p><strong>References</strong></p>
+<div id="refs" class="references hanging-indent">
+<div>
+<p>Banner, K. M., K. M. Irvine, and T. J. Rodhouse. 2020. The use of Bayesian priors in Ecology: The good, the bad and the not great. Methods in Ecology and Evolution 11:882–889.</p>
+</div>
+<div>
+<p>Bedrick, E. J., R. Christensen, and W. Johnson. 1996. A new perspective on priors for generalized linear models. Journal of the American Statistical Association 91:1450–1460.</p>
+</div>
+<div>
+<p>Brose, U., T. Jonsson, E. L. Berlow, P. Warren, C. Banasek-Richter, L.-F. Bersier, J. L. Blanchard, T. Brey, S. R. Carpenter, M.-F. C. Blandenier, and others. 2006. Consumer–resource body-size relationships in natural food webs. Ecology 87:2411–2417.</p>
+</div>
+<div>
+<p>Burkner, P.-C. 2017. Brms: An R Package for Bayesian Generalized Linear Mixed Models using Stan:22.</p>
+</div>
+<div>
+<p>Crome, F., M. Thomas, and L. Moore. 1996. A novel Bayesian approach to assessing impacts of rain forest logging. Ecological Applications 6:1104–1123.</p>
+</div>
+<div>
+<p>Edwards, W., H. Lindman, and L. J. Savage. 1963. Bayesian statistical inference for psychological research. Psychological review 70:193.</p>
+</div>
+<div>
+<p>Ellison, A. M. 2004. Bayesian inference in ecology. Ecology letters 7:509–520.</p>
+</div>
+<div>
+<p>Gabry, J., D. Simpson, A. Vehtari, M. Betancourt, and A. Gelman. 2019. Visualization in Bayesian workflow. Journal of the Royal Statistical Society: Series A (Statistics in Society) 182:389–402.</p>
+</div>
+<div>
+<p>Gelman, A., J. B. Carlin, H. S. Stern, D. B. Dunson, A. Vehtari, and D. B. Rubin. 2013. Bayesian data analysis. CRC press.</p>
+</div>
+<div>
+<p>Gelman, A., and C. Hennig. 2017. Beyond objective and subjective in statistics (with discussion). Journal of the Royal Statistical Society, Series A 180:967–1033.</p>
+</div>
+<div>
+<p>Gelman, A., J. Hill, and M. Yajima. 2012. Why we (usually) don’t have to worry about multiple comparisons. Journal of Research on Educational Effectiveness 5:189–211.</p>
+</div>
+<div>
+<p>Gelman, A., D. Simpson, and M. Betancourt. 2017. The Prior Can Often Only Be Understood in the Context of the Likelihood. Entropy 19:555.</p>
+</div>
+<div>
+<p>Gelman, A., A. Vehtari, D. Simpson, C. C. Margossian, B. Carpenter, Y. Yao, L. Kennedy, J. Gabry, P.-C. Bürkner, and M. Modrák. 2020. Bayesian workflow. arXiv preprint arXiv:2011.01808.</p>
+</div>
+<div>
+<p>Hobbs, N. T., and M. B. Hooten. 2015. Bayesian models: A statistical primer for ecologists. Princeton University Press.</p>
+</div>
+<div>
+<p>Hooten, M. B., and N. T. Hobbs. 2015. A guide to Bayesian model selection for ecologists. Ecological Monographs 85:3–28.</p>
+</div>
+<div>
+<p>James, A., S. L. Choy, and K. Mengersen. 2010. Elicitator: An expert elicitation tool for regression in ecology. Environmental Modelling &amp; Software 25:129–145.</p>
+</div>
+<div>
+<p>Kadane, J. B., J. M. Dickey, R. L. Winkler, W. S. Smith, and S. C. Peters. 1980. Interactive elicitation of opinion for a normal linear model. Journal of the American Statistical Association 75:845–854.</p>
+</div>
+<div>
+<p>Kennedy, L., D. Simpson, and A. Gelman. 2019. The Experiment is just as Important as the Likelihood in Understanding the Prior: A Cautionary Note on Robust Cognitive Modeling. Computational Brain &amp; Behavior 2:210–217.</p>
+</div>
+<div>
+<p>Korner-Nievergelt, F., T. Roth, S. Von Felten, J. Guélat, B. Almasi, and P. Korner-Nievergelt. 2015. Bayesian data analysis in ecology using linear models with R, BUGS, and Stan. Academic Press.</p>
+</div>
+<div>
+<p>Lemoine, N. P. 2019. Moving beyond noninformative priors: Why and how to choose weakly informative priors in Bayesian analyses. Oikos 128:912–928.</p>
+</div>
+<div>
+<p>Lindley, D. V. 1961. The use of prior probability distributions in statistical inference and decision. Pages 453–468 <em>in</em> Proc. 4th Berkeley Symp. On Math. Stat. And Prob.</p>
+</div>
+<div>
+<p>McCarthy, M. A., and P. Masters. 2005. Profiting from prior information in Bayesian analyses of ecological data. Journal of Applied Ecology:1012–1019.</p>
+</div>
+<div>
+<p>McElreath, R. 2020. Statistical rethinking: A Bayesian course with examples in R and Stan. CRC press.</p>
+</div>
+<div>
+<p>Morris, W. K., P. A. Vesk, M. A. McCarthy, S. Bunyavejchewin, and P. J. Baker. 2015. The neglected tool in the Bayesian ecologist’s shed: A case study testing informative priors’ effect on model accuracy. Ecology and Evolution 5:102–108.</p>
+</div>
+<div>
+<p>R Core Team. 2020. R: A Language and Environment for Statistical Computing. R Foundation for Statistical Computing, Vienna, Austria.</p>
+</div>
+<div>
+<p>Rodhouse, T. J., R. M. Rodriguez, K. M. Banner, P. C. Ormsbee, J. Barnett, and K. M. Irvine. 2019. Evidence of region-wide bat population decline from long-term monitoring and Bayesian occupancy models with empirically informed priors. Ecology and evolution 9:11078–11088.</p>
+</div>
+<div>
+<p>Schad, D. J., M. Betancourt, and S. Vasishth. 2020. Toward a principled Bayesian workflow in cognitive science. Psychological methods.</p>
+</div>
+<div>
+<p>Seaman III, J. W., J. W. Seaman Jr, and J. D. Stamey. 2012. Hidden dangers of specifying noninformative priors. The American Statistician 66:77–84.</p>
+</div>
+<div>
+<p>Touchon, J. C., and M. W. McCoy. 2016. The mismatch between current statistical practice and doctoral training in ecology. Ecosphere 7:e01394.</p>
+</div>
+<div>
+<p>Trebilco, R., J. K. Baum, A. K. Salomon, and N. K. Dulvy. 2013. Ecosystem ecology: Size-based constraints on the pyramids of life. Trends in Ecology &amp; Evolution 28:423–431.</p>
+</div>
+<div>
+<p>Warmbold, J. 2016. Effects of fish on aquatic and terrestrial ecosystems. University of South Dakota.</p>
+</div>
+<div>
+<p>Warmbold, J. W., and J. S. Wesner. 2018. Predator foraging strategy mediates the effects of predators on local and emigrating prey. Oikos 127:579–589.</p>
+</div>
+<div>
+<p>Wolf, C., M. Novak, and A. I. Gitelman. 2017. Bayesian characterization of uncertainty in species interaction strengths. Oecologia 184:327–339.</p>
+</div>
+</div>
+<p><strong>Tables</strong></p>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:unnamed-chunk-1">Table 1: </span>Priors used for the two models. Distributions are either normal with a mean and standard deviation [N(mu, sigma)] or exponential [Exp(rate)].
+</caption>
+<thead>
+<tr>
+<th style="border-bottom:hidden" colspan="1">
+</th>
+<th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+Model 1: Predator-Prey
+</div>
+</th>
+<th style="border-bottom:hidden; padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="3">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+Model 2: Spiders
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:left;">
+Parameter
+</th>
+<th style="text-align:left;">
+Weak
+</th>
+<th style="text-align:left;">
+Strong
+</th>
+<th style="text-align:left;">
+Strongest
+</th>
+<th style="text-align:left;">
+Weak
+</th>
+<th style="text-align:left;">
+Strong
+</th>
+<th style="text-align:left;">
+Strongest
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Alpha
+</td>
+<td style="text-align:left;">
+N(0,1000)
+</td>
+<td style="text-align:left;">
+N(0,10)
+</td>
+<td style="text-align:left;">
+N(0,1)
+</td>
+<td style="text-align:left;">
+N(0,10)
+</td>
+<td style="text-align:left;">
+N(0,1)
+</td>
+<td style="text-align:left;">
+N(0,0.1)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Beta(s)
+</td>
+<td style="text-align:left;">
+N(0,1000)
+</td>
+<td style="text-align:left;">
+N(0,10)
+</td>
+<td style="text-align:left;">
+N(0,1)
+</td>
+<td style="text-align:left;">
+N(0,10)
+</td>
+<td style="text-align:left;">
+N(0,1)
+</td>
+<td style="text-align:left;">
+N(0,0.1)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sigma
+</td>
+<td style="text-align:left;">
+Exp(0.001)
+</td>
+<td style="text-align:left;">
+Exp(0.01)
+</td>
+<td style="text-align:left;">
+Exp(0.1)
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sigma_alpha
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+Exp(0.1)
+</td>
+<td style="text-align:left;">
+Exp(1)
+</td>
+<td style="text-align:left;">
+Exp(2)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sigma_cage
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+Exp(0.1)
+</td>
+<td style="text-align:left;">
+Exp(1)
+</td>
+<td style="text-align:left;">
+Exp(2)
+</td>
+</tr>
+</tbody>
+</table>
+<div style="page-break-after: always;"></div>
+<p><strong>Figure Captions</strong></p>
+<p>Figure 1. Prior predictive simulations showing the implications of the priors on predictions of log prey mass. The top row (a-c) shows prior simulations of regression lines with the posterior (c) in orange (95% credible intervals). The bottom row (d-f) shows prior predictive simulation of one data set out of many possibilities with the actual data from Brose et al. (2006) (f) in orange.</p>
+<p>Figure 2. Prior predictive simulations showing the implications of the priors on spider densities above mesocosm cages. Top row: Prior predictive distribution of the mean number of spiders above treatments with either Smallmouth Buffalo, no fish, or Green Sunfish. a) wide priors, b) stronger priors with the posterior overlaid in orange, or c) the strongest priors. Bottom row: 500 simulations from the prior predictive distribution of the total number of spiders expected for a new cage. Simulations come from the same priors as described above as d) wide priors, e) stronger priors with the posterior in orange, and f) the strongest priors. To improve visualization, the y-axis for a) is clipped at 0.00001 and 1e9. Prior specifications are listed in Table 1.</p>
+<div style="page-break-after: always;"></div>
+<p><strong>Figure 1</strong></p>
+<p><img src="plots/mod_1.jpg" width="100%" /></p>
+<div style="page-break-after: always;"></div>
+<p><strong>Figure 2</strong></p>
+<p><img src="plots/spiders_priors.jpg" width="100%" /></p>
+<div style="page-break-after: always;"></div>
+<p><strong>Supplementary Information</strong></p>
+<p>Data and code are submitted as separate files. They are also available here: <a href="https://github.com/jswesner/prior_predictive" class="uri">https://github.com/jswesner/prior_predictive</a>.</p>
+<p><img src="plots/spider_supplementary.jpg" width="1500" /></p>
+<p>Figure S1. The influence of the prior distributions on models estimating spider density using data in Warmbold and Wesner (2018). Because of the small sample size (n = 4 replicates), the prior specifications affect the posterior. Compared to the weakest prior, the stronger prior is more conservative, pulling each mean towards the prior mean. The strongest prior (blue) is too strong, essentially swamping any information in the data. Gray dots are raw data.</p>
+
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

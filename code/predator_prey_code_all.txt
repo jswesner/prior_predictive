@@ -209,7 +209,7 @@ sim_data_a <- fake_data %>%
   # theme(plot.margin = unit(c(0, 5, 0, 0), "cm")) +
   labs(y = "Prey Mass log(g)",
        x = "Predator Mass log(g)",
-       title = expression(paste("Simulated Data (n=1) (",y["i"], " ~ N(", mu["i"],",",sigma,"))")),
+       title = expression(paste("Simulated Data (",y["i"], " ~ N(", mu["i"],",",sigma,"))")),
        subtitle = "Weak Priors") +
   scale_x_continuous(limits = c(-20, 20)) +
   ylim(-60000, 60000) +
@@ -286,16 +286,17 @@ sim_data_c <- fake_data %>%
 
 
 # combine panels
-sim_all <- plot_grid(sim_reglines_a, 
+sim_all <- plot_grid(sim_reglines_a,
+                     sim_data_a,  
                      sim_reglines_b,
-                     sim_reglines_c,
-                     sim_data_a, 
                      sim_data_b, 
-                     sim_data_c, ncol = 3, align = "v",
+                     sim_reglines_c,
+                     sim_data_c, 
+                     ncol = 2, align = "v",
                      labels = "auto")
 
 saveRDS(sim_all, file = "plots/mod_1.rds")
-ggsave(sim_all, file = "plots/mod_1.tiff", dpi = 400, width = 16, height = 11)
+ggsave(sim_all, file = "plots/Figure 2.tiff", dpi = 600, width = 11, height = 16)
 ggsave(sim_all, file = "plots/mod_1.jpg", dpi = 400, width = 16, height = 11)
 
 

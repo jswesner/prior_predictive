@@ -1,0 +1,28 @@
+---
+output:
+  pdf_document:
+    latex_engine: xelatex
+fontsize: 12pt
+header-includes:
+- \usepackage{fontspec}
+- \setmainfont{Times New Roman}
+- \usepackage{booktabs}
+---
+
+**Choosing priors in Bayesian ecological models by simulating from the prior predictive distribution**
+
+Jeff S. Wesner and Justin P.F. Pomeranz
+
+University of South Dakota, Department of Biology, Vermillion, SD 57069
+
+**Appendix S1**
+
+Data and code are available in Data S1. They are also available here: <https://github.com/jswesner/prior_predictive>.
+
+```{r}
+library(here)
+library(knitr)
+knitr::include_graphics(here("plots/spider_supplementary.tiff"))
+```
+
+Figure S1. The influence of the prior distributions on models estimating spider density using data in Warmbold and Wesner (2018). Because of the small sample size (n = 4 replicates), the prior specifications affect the posterior. Compared to the weakest prior, the stronger prior is more conservative, pulling each mean towards the prior mean. The strongest prior (blue) is too strong, essentially swamping any information in the data. Gray dots are raw data.

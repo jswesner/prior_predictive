@@ -30,7 +30,7 @@ spiders_plot <- spiders %>%
   ggplot(aes(x = date_date, y = webs, fill = Treatment, shape = Treatment)) + 
   geom_point(position = position_jitterdodge(jitter.height = 0.09, jitter.width = 0, dodge.width = 2.5),
              alpha = 0.7,
-             size = 0.8) +
+             size = 2) +
   scale_fill_colorblind() +
   scale_shape_manual(values = c(21, 22, 24)) +
   labs(y = "Number of Spiders",
@@ -42,8 +42,8 @@ data_plots <- plot_grid(d_plot, spiders_plot, ncol = 2, align = "h",
                         labels = "auto")
 
 saveRDS(data_plots, file = "plots/data_plots.rds")
-ggsave(data_plots, file = "plots/data_plots.jpg", dpi = 600, width = 7, height = 2.4)
-
+ggsave(data_plots, file = "plots/data_plots.tiff", dpi = 600, width = 7, height = 2.4)
+ggsave(data_plots, file = "plots/Figure_1.tiff", dpi = 600, width = 7, height = 2.4)
 
 # Fit Models - Posterior --------------------------------------------------
 
@@ -64,6 +64,16 @@ spiders_narrowest_post <- brm(webs ~ trt*datefac + (1|cage), data = spiders, fam
                                      prior(normal(0, 0.1), class = "Intercept"),
                                      prior(exponential(2), class = "sd")),
                            chains = 1, iter = 1000)
+
+
+saveRDS(spiders_wide_post, file = "models/spiders_wide_post.rds")
+saveRDS(spiders_narrow_post, file = "models/spiders_narrow_post.rds")
+saveRDS(spiders_narrowes_post, file = "models/spiders_narrowes_post.rds")
+
+
+spiders_wide_post <- "models/spiders_wide_post.rds"
+spiders_narrow_post <- "models/spiders_narrow_post.rds"
+spiders_narrowes_post <- "models/spiders_narrowes_post.rds"
 
 test <- conditional_effects(spiders_wide_post)
 test2 <- conditional_effects(spiders_narrow_post)
@@ -90,7 +100,7 @@ spider_supplementary <- both_cond %>%
   coord_flip()
 
 saveRDS(spider_supplementary, file = here("plots/spider_supplementary.rds"))
-ggsave(spider_supplementary, file = here("plots/spider_supplementary.tiff"), dpi = 500, width = 6, height = 6)
+spider_supplementary <- readRDS(here("plots/spider_supplementary.rds"))
 ggsave(spider_supplementary, file = here("plots/spider_supplementary.jpg"), dpi = 500, width = 6, height = 6)
 
 

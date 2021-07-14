@@ -1,0 +1,41 @@
+---
+output:
+  html_document:
+    df_print: paged
+  pdf_document:
+    latex_engine: xelatex
+csl: bib/ecology.csl
+fontsize: 12pt
+delete_merged_file: true
+header-includes:
+    - \usepackage{setspace}\doublespacing
+    - \usepackage{amsmath}
+    - \usepackage{lineno}
+    - \linenumbers
+    - \usepackage{fontspec}
+    - \setmainfont{Times New Roman}
+bibliography: bib/prior_pred.bib
+---
+
+**Choosing priors in Bayesian ecological models by simulating from the prior predictive distribution**
+
+Jeff S. Wesner and Justin P.F. Pomeranz
+
+University of South Dakota, Department of Biology, Vermillion, SD 57069
+
+[Jeff.Wesner\@usd.edu](mailto:Jeff.Wesner@usd.edu){.email}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+\newpage
+
+**Abstract**
+
+Bayesian data analysis is increasingly used in ecology, but prior specification remains focused on choosing non-informative priors (e.g., flat or vague priors). One barrier to choosing more informative priors is that priors must be specified on model parameters (e.g., intercepts, slopes, sigmas), but prior knowledge often exists on the level of the response variable. This is particularly true for common models in ecology, like generalized linear mixed models that have a link function and potentially dozens of parameters, each of which needs a prior distribution. We suggest that this difficulty can be overcome by simulating from the prior predictive distribution and visualizing the results on the scale of the response variable. In doing so, some common choices for non-informative priors on parameters can easily be seen to produce biologically impossible values of response variables. Such implications of prior choices are difficult to foresee without visualization. We demonstrate a workflow for prior selection using simulation and visualization with two ecological examples (predator-prey body sizes and spider responses to food competition). This approach is not new, but its adoption by ecologists will help to better incorporate prior information in ecological models, thereby maximizing one of the benefits of Bayesian data analysis.
+
+Keywords: *Bayesian, prior predictive distribution, GLMM, simulation*
+
+\newpage
+

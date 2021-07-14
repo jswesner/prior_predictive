@@ -1,0 +1,22 @@
+---
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+csl: bib/ecology.csl
+fontsize: 12pt
+header-includes:
+    - \usepackage{setspace}\doublespacing
+    - \usepackage{amsmath}
+    - \usepackage{lineno}
+    - \linenumbers
+    - \usepackage{fontspec}
+    - \setmainfont{Times New Roman}
+    - \usepackage{booktabs}
+bibliography: bib/prior_pred.bib
+---
+
+\begin{align} \text{log} (y_i) \sim \text{Normal}(\upmu_i, \upsigma)  \end{align}
+
+\begin{align} \text{log} (y_i) \sim \text{Normal}(\upmu_i, \upsigma)\\ \upmu_i = \alpha + \upbeta \text{log}(x_i)\\ \alpha \sim \text{Normal}(0, \upsigma\_{\alpha})\\ \upbeta \sim \text{Normal}(0, \upsigma\_{\upbeta})\\ \upsigma \sim \text{Exponential}(\phi) \end{align} where $\text{log}(y_i)$ is natural log transformed prey mass and $\text{log}(x_i)$ is natural log transformed predator mass.

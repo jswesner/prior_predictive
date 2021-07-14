@@ -1,0 +1,91 @@
+---
+output:
+  html_document:
+    df_print: paged
+  pdf_document:
+    latex_engine: xelatex
+csl: bib/ecology.csl
+fontsize: 12pt
+delete_merged_file: true
+header-includes:
+    - \usepackage{setspace}\doublespacing
+    - \usepackage{amsmath}
+    - \usepackage{lineno}
+    - \linenumbers
+    - \usepackage{fontspec}
+    - \setmainfont{Times New Roman}
+bibliography: bib/prior_pred.bib
+---
+
+**Choosing priors in Bayesian ecological models by simulating from the prior predictive distribution**
+
+Jeff S. Wesner and Justin P.F. Pomeranz
+
+University of South Dakota, Department of Biology, Vermillion, SD 57069
+
+[Jeff.Wesner\@usd.edu](mailto:Jeff.Wesner@usd.edu){.email}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+\newpage
+
+**Abstract**
+
+Bayesian data analysis is increasingly used in ecology, but prior specification remains focused on choosing non-informative priors (e.g., flat or vague priors). One barrier to choosing more informative priors is that priors must be specified on model parameters (e.g., intercepts, slopes, sigmas), but prior knowledge often exists on the level of the response variable. This is particularly true for common models in ecology, like generalized linear mixed models that have a link function and potentially dozens of parameters, each of which needs a prior distribution. We suggest that this difficulty can be overcome by simulating from the prior predictive distribution and visualizing the results on the scale of the response variable. In doing so, some common choices for non-informative priors on parameters can easily be seen to produce biologically impossible values of response variables. Such implications of prior choices are difficult to foresee without visualization. We demonstrate a workflow for prior selection using simulation and visualization with two ecological examples (predator-prey body sizes and spider responses to food competition). This approach is not new, but its adoption by ecologists will help to better incorporate prior information in ecological models, thereby maximizing one of the benefits of Bayesian data analysis.
+
+Keywords: *Bayesian, prior predictive distribution, GLMM, simulation*
+
+\newpage
+
+**Introduction**
+
+The distinguishing feature between Bayesian and non-Bayesian statistics is that Bayesian statistics treats unknown parameters as random variables governed by a probability distribution, while non-Bayesian statistics treats unknown parameters as fixed and unknown quantities [@ellison_bayesian_2004; @hobbs_bayesian_2015]. A common misconception is that only Bayesian statistics incorporates prior information. However, non-Bayesian methods can and often do incorporate prior information, either informally in the choices of likelihoods and model structures, or formally as penalized likelihood or hierarchical modeling [@hobbs_bayesian_2015; @morris_neglected_2015].
+
+While prior information is not unique to Bayesian models, it is required of them. For example, in a simple linear regression of the form $y \sim \text{Normal}(\alpha + \beta x, \sigma)$, the intercept $\alpha$, slope $\beta$, and standard deviation $\sigma$ are unknown parameters that each need a prior probability distribution. There are differing opinions and philosophies on the best practices for choosing priors [@lindley_use_1961; @edwards_bayesian_1963; @morris_neglected_2015; @gelman_prior_2017; @wolf_bayesian_2017; @lemoine_moving_2019; @banner_use_2020]. In ecology, a common practice is to assign so-called non-informative priors that effectively assign equal probability to all possible values using either uniform or diffuse normal priors with large variances [@lemoine_moving_2019]. These priors allow Bayesian inference to proceed (i.e., produce a posterior distribution), but with presumably limited influence of the priors [@lemoine_moving_2019].
+
+Reasons for using non-informative priors are varied but are at least in part driven by a desire to avoid the appearance of subjectivity and/or a reliance on default settings in popular software [@gelman_beyond_2017; @banner_use_2020]. There are several arguments against this approach. First, "non-informative" is a misnomer. All proper priors influence the posterior distribution to some extent [@hobbs_bayesian_2015]. As a result, a prior cannot just be assumed as non-informative based on default settings or a wide variance [@seaman_iii_hidden_2012]. Its implications for the model should be checked just like any other subjective assumption in data analysis, whether Bayesian or not [@gelman_prior_2017; @banner_use_2020]. Second, adhering to non-informative priors removes a major potential benefit of Bayesian analysis, which is to explicitly incorporate prior research and expertise into new science [@hobbs_bayesian_2015; @lemoine_moving_2019; @rodhouse_evidence_2019]. Third, informative priors can help to reduce spurious conclusions due to errors in magnitude or sign of a relationship by treating extreme values in the data skeptically [@gelman_why_2012; @lemoine_moving_2019]. Finally, informative priors make computational algorithms like MCMC run more efficiently, which can save hours or days of computing time in complex models [@hobbs_bayesian_2015]. An additional way to improve efficiency can come from different choices of prior distributions, such as an inverse-gamma distribution on the variance rather than the exponential prior on the standard deviation that we use in the models here, for example. For more complete discussion on this, see @gelman_prior_2006.
+
+While there are clear arguments for why ecologists *should* use more informative priors, it is often difficult to know *how* to use them. Even for seemingly simple and routine models, like logistic or Poisson regression, it can be difficult to understand *a priori* how priors affect the model, because they must be assigned in the context of likelihood with a linearizing link-function [@seaman_iii_hidden_2012; @gelman_prior_2017]. In other words, prior specification takes place on model parameters (e.g., slopes, intercepts, variances), but prior knowledge is often easier to assess on the model outcomes [@kadane_interactive_1980; @bedrick_new_1996; @gabry_visualization_2019]. This is particularly true for models that are commonly used in ecology, such as generalized linear mixed models with interactions. These models may have dozens of parameters and hyperparameters, each of which require a prior probability distribution [@bedrick_new_1996; @mcelreath_statistical_2020].
+
+We suggest that ecologists can address this problem by simulating from the prior predictive distribution and visualizing the implications of the priors on outcomes of interest (e.g., means and confidence intervals of treatment groups, simulated data, or regression lines). In this paper, we demonstrate this approach using two case studies with ecological data (Figure 1). All data and code are available at: <https://github.com/jswesner/prior_predictive>.
+
+**Prior Predictive Simulation**
+
+An attractive feature of the Bayesian approach is that the models are generative. This means that we can simulate potential data from the model so long as the parameters are assigned a proper probability distribution [@gelman_bayesian_2013]. This feature is routinely used to check models and prior influence *after* fitting the data using the posterior predictive distribution [@lemoine_moving_2019; @gelman_bayesian_2020], but it can also be used before seeing the data using the prior predictive distribution [@gabry_visualization_2019].
+
+The general workflow for prior predictive simulation is:
+
+1)  Draw N realizations from a prior distribution
+
+2)  For each draw, simulate a model outcome or new data from the likelihood
+
+3)  Plot the results
+
+4)  Use domain knowledge to assess whether simulated values reflect prior knowledge
+
+5)  If simulated values do not reflect prior knowledge, change the prior distribution, likelihood, or both and repeat the simulation from step 1
+
+6)  If simulated values reflect prior knowledge, add the data and estimate the posterior distribution
+
+This amounts to a prior predictive check to satisfy the expectation that "simulations from the full Bayesian model...should be plausible data sets" [@kennedy_experiment_2019]. We demonstrate it with two motivating examples.
+
+**Example 1: Predator-Prey Body Sizes - Simple Linear Regression**
+
+*Data* - Understanding predator-prey interactions has long been a research interest of ecologists. Body size is related to a number of aspects that influence these interactions. For example, predators are often gape-limited, meaning that larger predators should be able to eat larger prey. The data set of @brose_consumerresource_2006 documents 13,085 predator-prey interactions, including the mean mass of each (Figure 1a).
+
+*Model* - We examined the hypothesis that the prey body mass increases log-linearly with predator body mass using a simple linear model:
+
+\begin{align}
+\text{log} (y_i) \sim \text{Normal}(\mu_i, \sigma)\\
+\mu_i = \alpha + \beta \text{log}(x_i)\\
+\alpha \sim \text{Normal}(0, \sigma_{\alpha})\\
+\beta \sim \text{Normal}(0, \sigma_{\beta})\\
+\sigma \sim \text{Exponential}(\phi)
+\end{align}
+where $\text{log}(y_i)$ is natural log transformed prey mass and $\text{log}(x_i)$ is natural log transformed predator mass.
+
+*Priors* - For the $\alpha$ and $\beta$ priors, we first assign a mean of 0 with a "non-informative" standard deviation of 1000 [$N(0, 1000)$] (Table 1). These prior values are often used as defaults, especially in earlier Bayesian software to generate "flat" prior distributions and are commonly used in the ecological literature [@mccarthy_profiting_2005; @banner_use_2020]. The mean of 0 in a normal distribution implies that the intercept and slope have equal probability of being positive or negative. For the exponential distribution, we specify an initial $\phi$ of 0.00001, chosen by plotting 100 simulations from the exponential function in R [@r_core_team_r_2020] with varying values of $\phi$ [e.g., `plot(rexp(100, 0.00001)`]. A value of 0.00001 generated an average deviance of \~1,000 with values up to \~5,000, indicating the possibility of producing extremely large values.
+
+After simulating regressions from these initial priors, we specified successfully tighter priors and repeated the simulations (Table 1; Figure 2). Those simulations were compared to reference points representing prior knowledge (Mass of earth, a Blue Whale, a virus, and a Carbon-12 atom). The goal was to use these reference points to find a joint prior distribution that produced reasonable values of potential prey masses. We did this using two levels of the model ($\mu_i$ and $y_i$). For $\mu_i$, we simulated 100 means across each value of $x_i$ and plotted them as regression lines. For $y_i$, we simulated a fake data set containing simulated values of log prey mass for each of the 13,085 values of log predator mass ($x_i$) in the @brose_consumerresource_2006 data.
