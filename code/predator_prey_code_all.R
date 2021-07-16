@@ -39,6 +39,9 @@ fake_data <- tibble(a = rnorm(N, 0, 1000),
                            model == 2 ~ "b",
                            TRUE ~ "c"))
 
+saveRDS(fake_data, file = "data/fake_data.rds")
+fake_data <- readRDS("data/fake_data.rds")
+
 # reference points to plot
 reference_points <- tibble(reference = c("Whale", "Virus", "Earth", "Atom"),
                            y = c(18.18, -32.2, 63, -52)) %>% # log grams of each reference point (from Wikipedia or Google)
@@ -85,7 +88,7 @@ sim_reglines_a <- fake_data %>%
                       label = reference,
                       color = reference),
                   hjust = 1, 
-                  size = 5, 
+                  size = 3, 
                   nudge_x = 2,
                   nudge_y = 15,
                   direction = "y") +
@@ -98,11 +101,13 @@ sim_reglines_a <- fake_data %>%
        title = expression(paste("Simulated Means (",mu["i"], " = ", alpha, " + ", beta, "x"["i"],")")),
        subtitle = "Weak Priors") +
   scale_x_continuous(limits = c(-20, 20)) +
-  # annotate("text", x = -3, y = 60000, size = 5,
+  # annotate("text", x = -3, y = 60000, size = 3,
   #          label = expression(paste("Weak priors: ", alpha%~%N(0, 1000),", ", ~ beta%~%N(0, 1000),", ", ~ sigma%~%exp(0.0001)))) +
   ylim(-60000, 60000) +
-  theme(text = element_text(size = 16),
-        legend.title = element_blank()) +
+  theme(text = element_text(size = 11),
+        legend.title = element_blank(),
+        plot.title = element_text(size = 11),
+        plot.subtitle = element_text(size = 10)) +
   NULL
 
 
@@ -120,7 +125,7 @@ sim_reglines_b <- fake_data %>%
                       y = y, label = reference,
                       color = reference),
                   hjust = -1, 
-                  size = 5, 
+                  size = 3, 
                   nudge_x = 2,
                   nudge_y = 15,
                   direction = "y") +
@@ -133,11 +138,13 @@ sim_reglines_b <- fake_data %>%
        title = "",
        subtitle = "Stronger Priors") +
   scale_x_continuous(limits = c(-20, 20)) +
-  # annotate("text", x = -3, y = 3000, size = 5,
+  # annotate("text", x = -3, y = 3000, size = 3,
   #          label = expression(paste("Stronger priors: ", alpha%~%N(0, 10),", ", ~ beta%~%N(0, 10),", ", ~ sigma%~%exp(0.01)))) +
   ylim(-1000, 1000) +
-  theme(text = element_text(size = 16),
-        legend.title = element_blank()) +
+  theme(text = element_text(size = 11),
+        legend.title = element_blank(),
+        plot.title = element_text(size = 11),
+        plot.subtitle = element_text(size = 10)) +
   NULL
 
 
@@ -162,7 +169,7 @@ sim_reglines_c <- fake_data %>%
               y = y, label = reference,
               color = reference),
           hjust = 0, 
-          size = 5, 
+          size = 3, 
           nudge_x = -0.2,
           nudge_y = 5) +
   guides(color = F) +
@@ -174,11 +181,13 @@ sim_reglines_c <- fake_data %>%
        title = "",
        subtitle = "Strongest Priors (with Posterior)") +
   scale_x_continuous(limits = c(-20, 20)) +
-  # annotate("text", x = -3, y = 80, size = 5,
+  # annotate("text", x = -3, y = 80, size = 3,
   #          label = expression(paste("Strongest priors: ", alpha%~%N(0, 1),", ", ~ beta%~%N(0, 1),", ", ~ sigma%~%exp(0.5)))) +
   ylim(-80, 80) +
-  theme(text = element_text(size = 16),
-        legend.title = element_blank()) +
+  theme(text = element_text(size = 11),
+        legend.title = element_blank(),
+        plot.title = element_text(size = 11),
+        plot.subtitle = element_text(size = 10)) +
   geom_ribbon(data = c_cond_plot, aes(x = log_pred, ymin = lower, ymax = upper), color = "#E69F00", size = 1.2) +
   NULL
 
@@ -199,7 +208,7 @@ sim_data_a <- fake_data %>%
                 y = y, label = reference,
                 color = reference),
             hjust = 1, 
-            size = 5, 
+            size = 3, 
             nudge_x = 2,
             nudge_y = 15,
             direction = "y") +
@@ -213,8 +222,10 @@ sim_data_a <- fake_data %>%
        subtitle = "Weak Priors") +
   scale_x_continuous(limits = c(-20, 20)) +
   ylim(-60000, 60000) +
-  theme(text = element_text(size = 16),
-        legend.title = element_blank()) +
+  theme(text = element_text(size = 11),
+        legend.title = element_blank(),
+        plot.title = element_text(size = 11),
+        plot.subtitle = element_text(size = 10)) +
   NULL
 
 
@@ -231,7 +242,7 @@ sim_data_b <- fake_data %>%
                       y = y, label = reference,
                       color = reference),
                   hjust = -1, 
-                  size = 5, 
+                  size = 3, 
                   nudge_x = 2,
                   nudge_y = 15,
                   direction = "y") +
@@ -245,7 +256,7 @@ sim_data_b <- fake_data %>%
        subtitle = "Stronger Priors") +
   scale_x_continuous(limits = c(-20, 20)) +
   ylim(-1000, 1000) +
-  theme(text = element_text(size = 16),
+  theme(text = element_text(size = 11),
         legend.title = element_blank()) +
   NULL
 
@@ -264,7 +275,7 @@ sim_data_c <- fake_data %>%
                 y = y, label = reference,
                 color = reference),
             hjust = 0, 
-            size = 5, 
+            size = 3, 
             nudge_x = -0.2,
             nudge_y = 5) +
   guides(color = F) +
@@ -276,10 +287,10 @@ sim_data_c <- fake_data %>%
        title = "",
        subtitle = "Strongest Priors (with raw data)") +
   scale_x_continuous(limits = c(-20, 20)) +
-  # annotate("text", x = -3, y = 80, size = 5,
+  # annotate("text", x = -3, y = 80, size = 3,
   #          label = expression(paste("Strongest priors: ", alpha%~%N(0, 1),", ", ~ beta%~%N(0, 1),", ", ~ sigma%~%exp(0.1)))) +
   ylim(-80, 80) +
-  theme(text = element_text(size = 16),
+  theme(text = element_text(size = 11),
         legend.title = element_blank()) +
   geom_point(data = d, aes(x = log_pred, y = log_prey), color = "#E69F00", shape = 21, size = 0.1) + # add real data
   NULL
@@ -295,9 +306,8 @@ sim_all <- plot_grid(sim_reglines_a,
                      ncol = 2, align = "v",
                      labels = "auto")
 
-saveRDS(sim_all, file = "plots/mod_1.rds")
-ggsave(sim_all, file = "plots/Figure 2.tiff", dpi = 600, width = 11, height = 16)
-ggsave(sim_all, file = "plots/mod_1.jpg", dpi = 400, width = 16, height = 11)
+saveRDS(sim_all, file = "plots/old/mod_1.rds")
+ggsave(sim_all, file = "plots/Figure 2.pdf", dpi = 600, width = 7, height = 9)
 
 
 

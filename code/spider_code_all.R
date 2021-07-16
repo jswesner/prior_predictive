@@ -270,7 +270,7 @@ ggplot(aes(x = date, y = value, fill = Treatment, group = interaction(Treatment,
 
 spider_plot <- plot_grid(left, right, ncol = 2, align = "v")
 
-ggsave(spider_plot, file = "plots/Figure 3.tiff", dpi = 600, width = 6, height = 6)
+ggsave(spider_plot, file = "plots/Figure 3.pdf", dpi = 600, width = 6, height = 6)
 
 
 # Old Plots ---------------------------------------------------------------
